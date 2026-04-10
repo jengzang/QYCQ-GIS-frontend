@@ -1,0 +1,56 @@
+@import "maplibre-gl/dist/maplibre-gl.css";
+@import "tailwindcss";
+
+:root {
+  --color-bg-page: #eef6ff;
+  --color-bg-surface: rgba(255, 255, 255, 0.82);
+  --color-bg-surface-strong: #ffffff;
+  --color-text-primary: #11315f;
+  --color-text-secondary: #466b98;
+  --color-primary: #2274f0;
+  --color-primary-strong: #0d4db5;
+  --color-border-subtle: rgba(34, 116, 240, 0.16);
+  --color-map-dialect-1: #1d4ed8;
+  --color-map-dialect-2: #2563eb;
+  --color-map-dialect-3: #0ea5e9;
+  --color-map-dialect-4: #0284c7;
+  --color-map-dialect-5: #38bdf8;
+  --color-map-dialect-6: #60a5fa;
+  --color-map-dialect-7: #7dd3fc;
+  --color-map-dialect-8: #93c5fd;
+  color: var(--color-text-primary);
+  background:
+    radial-gradient(circle at top left, rgba(34, 116, 240, 0.22), transparent 32%),
+    linear-gradient(180deg, #f8fbff 0%, #eef6ff 50%, #e7f2ff 100%);
+  font-family:
+    "Noto Sans SC",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
