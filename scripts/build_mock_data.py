@@ -213,6 +213,11 @@ def read_workbook_rows(workbook_path: Path) -> list[dict[str, str]]:
     return output_rows
 
 
+def clean_optional_text(value: str | None) -> str | None:
+    normalized = normalize_text(value)
+    return normalized or None
+
+
 def build_search_text(row: dict[str, str]) -> str:
     fields = [
         row.get("归属市", ""),
@@ -221,6 +226,8 @@ def build_search_text(row: dict[str, str]) -> str:
         row.get("位置", ""),
         row.get("村名来源", ""),
         row.get("村居民使用语言情况", ""),
+        row.get("居民民族", ""),
+        row.get("村经济情况", ""),
     ]
     return " ".join(field for field in fields if field)
 
@@ -235,6 +242,8 @@ def build_village_record(row: dict[str, str]) -> dict[str, Any]:
         "name": row.get("村名", ""),
         "city": row.get("归属市") or "",
         "town": row.get("归属镇") or "",
+        "economy": clean_optional_text(row.get("村经济情况")),
+        "ethnicity": clean_optional_text(row.get("居民民族")),
         "geometry": {
             "type": "Point",
             "coordinates": [point.lng, point.lat],
@@ -253,6 +262,8 @@ def build_facets(records: list[dict[str, Any]]) -> dict[str, Any]:
     cities = sorted({record["city"] for record in records if record["city"]})
     towns = sorted({record["town"] for record in records if record["town"]})
     dialect_groups = sorted({record["dialectGroup"] for record in records})
+    economies = sorted({record["economy"] for record in records if record.get("economy")})
+    ethnicities = sorted({record["ethnicity"] for record in records if record.get("ethnicity")})
     sort_years = [
         record["timeline"]["sortYear"]
         for record in records
@@ -263,6 +274,8 @@ def build_facets(records: list[dict[str, Any]]) -> dict[str, Any]:
         "cities": cities,
         "towns": towns,
         "dialectGroups": dialect_groups,
+        "economies": economies,
+        "ethnicities": ethnicities,
         "timelineRange": {
             "min": min(sort_years) if sort_years else None,
             "max": max(sort_years) if sort_years else None,

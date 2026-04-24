@@ -25,6 +25,17 @@ The system MUST generate a deterministic string `primaryid` and a deterministic 
 - **WHEN** a workbook row has no longitude and latitude geometry data
 - **THEN** the generated mock record still includes a valid WGS84 point located inside the configured Guangdong bounds
 
+### Requirement: Fallback Guangdong coordinates MUST be documented as temporary demo geometry
+The system MUST treat generated Guangdong fallback coordinates as temporary demo-only geometry used to keep the map experience functional before real village longitude and latitude data are available.
+
+#### Scenario: Real coordinates are not yet available
+- **WHEN** the project uses generated fallback points
+- **THEN** OpenSpec and implementation documentation explicitly state that the coordinates are deterministic mock geometry for demo and interaction verification only, not authoritative village locations
+
+#### Scenario: Real coordinates become available later
+- **WHEN** authoritative village longitude and latitude data are introduced
+- **THEN** the mock geometry generation can be removed or bypassed without changing front-end selection, routing, or `primaryId` contracts
+
 ### Requirement: Mock pipeline SHALL tolerate incomplete worksheet values
 The mock pipeline SHALL continue generating output when optional village fields are empty, malformed, or absent.
 

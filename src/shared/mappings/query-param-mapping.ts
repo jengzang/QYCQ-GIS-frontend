@@ -1,6 +1,8 @@
 export const queryParamMapping = {
   city: 'city',
   dialect: 'dialect',
+  economy: 'economy',
+  ethnicity: 'ethnicity',
   mode: 'mode',
   primaryId: 'primaryId',
   q: 'q',

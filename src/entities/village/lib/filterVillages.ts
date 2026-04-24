@@ -3,6 +3,8 @@ import type { VillageRecord } from '@/entities/village/model/types';
 export interface VillageQuery {
   city?: string;
   dialectGroup?: string;
+  economy?: string;
+  ethnicity?: string;
   q?: string;
   timelineEnd?: number | null;
   town?: string;
@@ -25,6 +27,14 @@ export function filterVillages(villages: VillageRecord[], query: VillageQuery): 
     }
 
     if (query.dialectGroup && village.dialectGroup !== query.dialectGroup) {
+      return false;
+    }
+
+    if (query.ethnicity && village.ethnicity !== query.ethnicity) {
+      return false;
+    }
+
+    if (query.economy && village.economy !== query.economy) {
       return false;
     }
 

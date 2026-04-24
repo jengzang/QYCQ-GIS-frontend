@@ -35,6 +35,8 @@ export function MapPage() {
   const city = searchParams.get(queryParamMapping.city) ?? '';
   const town = searchParams.get(queryParamMapping.town) ?? '';
   const dialect = searchParams.get(queryParamMapping.dialect) ?? '';
+  const ethnicity = searchParams.get(queryParamMapping.ethnicity) ?? '';
+  const economy = searchParams.get(queryParamMapping.economy) ?? '';
   const deferredQ = useDeferredValue(q);
   const { data: facets, isLoading: isFacetsLoading } = useVillageFacetsQuery();
   const timelineYear = parseTimelineYear(
@@ -44,6 +46,8 @@ export function MapPage() {
   const { data: villages = [], isLoading: isVillagesLoading } = useVillagesQuery({
     city: city || undefined,
     dialectGroup: activeMode === 'dialect' && dialect ? dialect : undefined,
+    economy: economy || undefined,
+    ethnicity: ethnicity || undefined,
     q: deferredQ || undefined,
     timelineEnd: activeMode === 'timeline' ? timelineYear : null,
     town: town || undefined,
@@ -105,6 +109,8 @@ export function MapPage() {
           filters={{
             city,
             dialect,
+            economy,
+            ethnicity,
             q,
             town,
             year: timelineYear,
@@ -115,9 +121,13 @@ export function MapPage() {
             updateParams({
               [queryParamMapping.city]: updates.city ?? city,
               [queryParamMapping.dialect]: updates.dialect ?? dialect,
+              [queryParamMapping.economy]: updates.economy ?? economy,
+              [queryParamMapping.ethnicity]: updates.ethnicity ?? ethnicity,
               [queryParamMapping.primaryId]:
                 updates.city !== undefined ||
                 updates.dialect !== undefined ||
+                updates.economy !== undefined ||
+                updates.ethnicity !== undefined ||
                 updates.q !== undefined ||
                 updates.town !== undefined ||
                 updates.year !== undefined

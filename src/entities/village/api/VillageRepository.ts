@@ -20,12 +20,32 @@ function buildQueryString(params?: VillageQuery): string {
   if (params?.dialectGroup) {
     query.set('dialectGroup', params.dialectGroup);
   }
+  if (params?.ethnicity) {
+    query.set('ethnicity', params.ethnicity);
+  }
+  if (params?.economy) {
+    query.set('economy', params.economy);
+  }
   if (params?.timelineEnd !== undefined && params.timelineEnd !== null) {
     query.set('timelineEnd', String(params.timelineEnd));
   }
 
   const queryString = query.toString();
   return queryString ? `?${queryString}` : '';
+}
+
+function normalizeFacets(facets: Partial<VillageFacets>): VillageFacets {
+  return {
+    cities: facets.cities ?? [],
+    dialectGroups: facets.dialectGroups ?? [],
+    economies: facets.economies ?? [],
+    ethnicities: facets.ethnicities ?? [],
+    timelineRange: {
+      max: facets.timelineRange?.max ?? null,
+      min: facets.timelineRange?.min ?? null,
+    },
+    towns: facets.towns ?? [],
+  };
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -55,7 +75,7 @@ export function createVillageRepository(runtime: RuntimeConfig): VillageReposito
         return villages.find((village) => village.primaryId === primaryId) ?? null;
       },
       async getFacets() {
-        return fetchJson<VillageFacets>(mockFacetsUrl);
+        return normalizeFacets(await fetchJson<Partial<VillageFacets>>(mockFacetsUrl));
       },
       async list(params) {
         const records = await fetchJson<VillageApiRecord[]>(mockVillagesUrl);
@@ -70,7 +90,7 @@ export function createVillageRepository(runtime: RuntimeConfig): VillageReposito
       return adaptVillageRecord(record);
     },
     async getFacets() {
-      return fetchJson<VillageFacets>(apiFacetsUrl);
+      return normalizeFacets(await fetchJson<Partial<VillageFacets>>(apiFacetsUrl));
     },
     async list(params) {
       const records = await fetchJson<VillageApiRecord[]>(

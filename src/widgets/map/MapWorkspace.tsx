@@ -3,44 +3,18 @@ import { useEffect, useEffectEvent, useRef } from 'react';
 
 import type { Feature, FeatureCollection, Point } from 'geojson';
 
-import type { VillageFacets } from '@/entities/village/api/types';
 import type { VillageRecord } from '@/entities/village/model/types';
+import { runtimeConfig } from '@/shared/config/runtime';
+import { getMapStyle } from '@/shared/lib/map-style';
+import { dialectLegendMapping } from '@/shared/mappings/dialect-mapping';
 import { mapLayerMapping } from '@/shared/mappings/map-layer-mapping';
 import { mapModeMapping, type MapModeKey } from '@/shared/mappings/nav-mapping';
-import { dialectLegendMapping } from '@/shared/mappings/dialect-mapping';
-import { villageFieldMapping } from '@/shared/mappings/village-field-mapping';
-import type { OrientationMode } from '@/shared/lib/orientation';
-import { getMapStyle } from '@/shared/lib/map-style';
-import { runtimeConfig } from '@/shared/config/runtime';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
 
-interface MapWorkspaceProps {
-  activeMode: MapModeKey;
-  filters: {
-    city: string;
-    dialect: string;
-    q: string;
-    town: string;
-    year: number | null;
-  };
-  facets?: VillageFacets;
-  hasInvalidSelection?: boolean;
-  isLoading?: boolean;
-  onFiltersChange: (
-    updates: Partial<{
-      city: string;
-      dialect: string;
-      q: string;
-      town: string;
-      year: number | null;
-    }>,
-  ) => void;
-  onModeChange: (mode: MapModeKey) => void;
-  onSelectVillage: (primaryId: string) => void;
-  orientation: OrientationMode;
-  selectedPrimaryId: string;
-  villages: VillageRecord[];
-}
+import { DetailPanel } from './components/DetailPanel';
+import { FilterPanel } from './components/FilterPanel';
+import { VillageList } from './components/VillageList';
+import type { MapWorkspaceProps } from './types';
 
 type VillageFeature = Feature<
   Point,
@@ -145,9 +119,7 @@ function applyVillageStyle(map: Map, activeMode: MapModeKey, selectedPrimaryId: 
   map.setPaintProperty(
     mapLayerMapping.symbolLayerId,
     'circle-opacity',
-    activeMode === 'timeline'
-      ? ['case', ['==', ['get', 'sortYear'], null], 0.36, 0.88]
-      : 0.88,
+    activeMode === 'timeline' ? ['case', ['==', ['get', 'sortYear'], null], 0.36, 0.88] : 0.88,
   );
   map.setPaintProperty(
     mapLayerMapping.symbolLayerId,
@@ -165,14 +137,6 @@ function applyVillageStyle(map: Map, activeMode: MapModeKey, selectedPrimaryId: 
     ['case', ['==', ['get', 'primaryId'], selectedPrimaryId], 2.5, 1.5],
   );
   map.setFilter(mapLayerMapping.detailHighlightLayerId, ['==', ['get', 'primaryId'], selectedPrimaryId]);
-}
-
-function renderFieldValue(value?: string) {
-  if (!value) {
-    return null;
-  }
-
-  return <p className="text-sm leading-6 text-[color:var(--color-text-secondary)]">{value}</p>;
 }
 
 function ModeTabs({ activeMode, onModeChange }: Pick<MapWorkspaceProps, 'activeMode' | 'onModeChange'>) {
@@ -204,160 +168,6 @@ function ModeTabs({ activeMode, onModeChange }: Pick<MapWorkspaceProps, 'activeM
   );
 }
 
-function FilterPanel({
-  activeMode,
-  facets,
-  filters,
-  onFiltersChange,
-  orientation,
-}: Pick<MapWorkspaceProps, 'activeMode' | 'facets' | 'filters' | 'onFiltersChange' | 'orientation'>) {
-  const timelineMin = facets?.timelineRange.min ?? 1400;
-  const timelineMax = facets?.timelineRange.max ?? 2000;
-
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3">
-        <label className="grid gap-2 text-sm font-medium">
-          <span>关键词检索</span>
-          <input
-            className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none transition focus:border-[color:var(--color-primary)]"
-            onChange={(event) => onFiltersChange({ q: event.currentTarget.value })}
-            placeholder="按村名、位置、语言搜索"
-            type="search"
-            value={filters.q}
-          />
-        </label>
-
-        <div className={['grid gap-3', orientation === 'portrait' ? 'grid-cols-1' : 'grid-cols-2'].join(' ')}>
-          <label className="grid gap-2 text-sm font-medium">
-            <span>归属市</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ city: event.currentTarget.value })}
-              value={filters.city}
-            >
-              <option value="">全部城市</option>
-              {facets?.cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium">
-            <span>归属镇</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ town: event.currentTarget.value })}
-              value={filters.town}
-            >
-              <option value="">全部乡镇</option>
-              {facets?.towns.map((town) => (
-                <option key={town} value={town}>
-                  {town}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        {activeMode === 'dialect' ? (
-          <label className="grid gap-2 text-sm font-medium">
-            <span>方言分组</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ dialect: event.currentTarget.value })}
-              value={filters.dialect}
-            >
-              <option value="">全部方言</option>
-              {facets?.dialectGroups.map((dialectGroup) => (
-                <option key={dialectGroup} value={dialectGroup}>
-                  {dialectGroup}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
-
-        {activeMode === 'timeline' ? (
-          <label className="grid gap-2 text-sm font-medium">
-            <span>时间轴</span>
-            <input
-              className="accent-[color:var(--color-primary)]"
-              max={timelineMax}
-              min={timelineMin}
-              onChange={(event) => onFiltersChange({ year: Number(event.currentTarget.value) })}
-              type="range"
-              value={filters.year ?? timelineMax}
-            />
-            <span className="text-sm text-[color:var(--color-text-secondary)]">
-              已展示至 {filters.year ?? timelineMax} 年
-            </span>
-          </label>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function VillageList({
-  activeMode,
-  onSelectVillage,
-  selectedPrimaryId,
-  villages,
-}: Pick<MapWorkspaceProps, 'activeMode' | 'onSelectVillage' | 'selectedPrimaryId' | 'villages'>) {
-  const visibleVillages = villages.slice(0, 80);
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between text-sm text-[color:var(--color-text-secondary)]">
-        <span>结果列表</span>
-        <span>显示 {visibleVillages.length} / {villages.length}</span>
-      </div>
-
-      <div className="max-h-[24rem] space-y-2 overflow-auto pr-1">
-        {visibleVillages.map((village) => {
-          const isSelected = village.primaryId === selectedPrimaryId;
-
-          return (
-            <button
-              key={village.primaryId}
-              className={[
-                'w-full rounded-2xl border px-4 py-3 text-left transition',
-                'border-[color:var(--color-border-subtle)] bg-white/85 hover:-translate-y-0.5 hover:bg-white',
-                isSelected
-                  ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_16px_30px_rgba(34,116,240,0.24)]'
-                  : '',
-              ].join(' ')}
-              onClick={() => onSelectVillage(village.primaryId)}
-              type="button"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold">{village.name}</span>
-                <div className="flex flex-wrap justify-end gap-2">
-                  {activeMode === 'timeline' && village.timeline.sortYear === null ? (
-                    <span className="rounded-full border border-current/20 px-2 py-0.5 text-[11px]">
-                      时间不详
-                    </span>
-                  ) : null}
-                  <span className="rounded-full border border-current/20 px-2 py-0.5 text-[11px]">
-                    {village.dialectGroup}
-                  </span>
-                </div>
-              </div>
-              <p className="mt-2 text-sm leading-6 opacity-80">
-                {village.city || '城市未填'} · {village.town || '乡镇未填'}
-              </p>
-              <p className="mt-1 text-xs leading-5 opacity-70">primaryId: {village.primaryId}</p>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function MapCanvas({
   activeMode,
   onSelectVillage,
@@ -377,10 +187,7 @@ function MapCanvas({
 
     if (selectedVillage?.geometry.type === 'Point') {
       map.easeTo({
-        center: [
-          selectedVillage.geometry.coordinates[0],
-          selectedVillage.geometry.coordinates[1],
-        ],
+        center: [selectedVillage.geometry.coordinates[0], selectedVillage.geometry.coordinates[1]],
         duration: 600,
         zoom: Math.max(map.getZoom(), 7.4),
       });
@@ -452,106 +259,6 @@ function MapCanvas({
   }
 
   return <div className="min-h-[24rem] overflow-hidden rounded-[2rem]" ref={containerRef} />;
-}
-
-function DetailPanel({
-  activeMode,
-  hasInvalidSelection,
-  hasVillages,
-  selectedVillage,
-}: {
-  activeMode: MapModeKey;
-  hasInvalidSelection: boolean;
-  hasVillages: boolean;
-  selectedVillage: VillageRecord | null;
-}) {
-  if (!selectedVillage) {
-    return (
-      <SurfaceCard title="村庄详情" description="选择一个村庄后，这里会展示详情。">
-        <p className="text-sm leading-6 text-[color:var(--color-text-secondary)]">
-          {hasInvalidSelection
-            ? '当前 URL 中的 primaryId 不在筛选结果里，请重新选择村庄。'
-            : hasVillages
-              ? '当前还没有选中村庄，请从列表或地图中选择。'
-              : '当前筛选结果为空，请调整检索条件。'}
-        </p>
-      </SurfaceCard>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <SurfaceCard
-        title={selectedVillage.name}
-        description={`${selectedVillage.city || '城市未填'} · ${selectedVillage.town || '乡镇未填'}`}
-        eyebrow="当前选中村庄"
-      >
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-[color:var(--color-primary)] px-3 py-1 text-xs font-semibold text-white">
-              {selectedVillage.dialectGroup}
-            </span>
-            <span className="rounded-full border border-[color:var(--color-border-subtle)] px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">
-              {selectedVillage.timeline.rawLabel || '时间不详'}
-            </span>
-          </div>
-          <p className="text-sm leading-6 text-[color:var(--color-text-secondary)]">
-            primaryId:
-            <span className="ml-2 font-mono text-[color:var(--color-primary-strong)]">
-              {selectedVillage.primaryId}
-            </span>
-          </p>
-          {renderFieldValue(selectedVillage.raw.位置)}
-        </div>
-      </SurfaceCard>
-
-      <SurfaceCard
-        title="模式说明"
-        description={
-          activeMode === 'search'
-            ? '检索模式优先强调“从关键词到村庄详情”的闭环。'
-            : activeMode === 'timeline'
-              ? '迁徙模式优先强调时间推进与聚落形成节奏。'
-              : '方言模式优先强调颜色图例与空间分布。'
-        }
-      >
-        <div className="space-y-4">
-          {villageFieldMapping.detailSections.map((section) => {
-            const rows = section.fields
-              .map((field) => ({
-                field,
-                value: selectedVillage.raw[field],
-              }))
-              .filter((item) => item.value);
-
-            if (!rows.length) {
-              return null;
-            }
-
-            return (
-              <div key={section.key} className="space-y-2">
-                <h3 className="text-sm font-semibold text-[color:var(--color-primary-strong)]">
-                  {section.title}
-                </h3>
-                <div className="space-y-2">
-                  {rows.map((row) => (
-                    <div key={row.field} className="rounded-2xl bg-white/70 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-secondary)]">
-                        {row.field}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">
-                        {row.value}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </SurfaceCard>
-    </div>
-  );
 }
 
 function DialectLegend() {

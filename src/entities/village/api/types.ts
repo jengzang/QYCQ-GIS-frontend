@@ -3,6 +3,8 @@ import type { VillageRecord } from '@/entities/village/model/types';
 export interface VillageQuery {
   city?: string;
   dialectGroup?: string;
+  economy?: string;
+  ethnicity?: string;
   q?: string;
   timelineEnd?: number | null;
   town?: string;
@@ -11,6 +13,8 @@ export interface VillageQuery {
 export interface VillageFacets {
   cities: string[];
   dialectGroups: string[];
+  economies: string[];
+  ethnicities: string[];
   timelineRange: { max: number | null; min: number | null };
   towns: string[];
 }

@@ -25,6 +25,8 @@ export interface RawVillageFields {
 export interface VillageRecord {
   city?: string;
   dialectGroup: string;
+  economy?: string;
+  ethnicity?: string;
   geometry: VillageGeometry;
   name: string;
   primaryId: string;
@@ -40,6 +42,8 @@ export interface VillageRecord {
 export interface VillageApiRecord {
   city?: string;
   dialectGroup?: string;
+  economy?: string;
+  ethnicity?: string;
   geometry?: Geometry;
   name?: string;
   primaryid?: string;

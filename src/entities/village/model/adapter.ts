@@ -10,14 +10,23 @@ const fallbackGeometry: Point = {
   type: 'Point',
 };
 
+function normalizeOptionalText(value: string | undefined): string | undefined {
+  const normalized = value?.trim();
+  return normalized ? normalized : undefined;
+}
+
 function buildSearchText(record: VillageApiRecord): string {
   const fields = [
     record.name,
     record.city,
     record.town,
+    record.ethnicity,
+    record.economy,
     record.raw?.位置,
     record.raw?.村名来源,
     record.raw?.村居民使用语言情况,
+    record.raw?.居民民族,
+    record.raw?.村经济情况,
   ];
 
   return fields
@@ -30,6 +39,8 @@ export function adaptVillageRecord(record: VillageApiRecord): VillageRecord {
   const city = record.city ?? record.raw?.归属市;
   const town = record.town ?? record.raw?.归属镇;
   const rawLabel = record.timeline?.rawLabel ?? record.raw?.建村时间;
+  const ethnicity = normalizeOptionalText(record.ethnicity ?? record.raw?.居民民族);
+  const economy = normalizeOptionalText(record.economy ?? record.raw?.村经济情况);
   const primaryId =
     record.primaryid ??
     buildPrimaryId({
@@ -41,11 +52,13 @@ export function adaptVillageRecord(record: VillageApiRecord): VillageRecord {
   return {
     city,
     dialectGroup: record.dialectGroup ?? resolveDialectGroup(record.raw?.村居民使用语言情况),
+    economy,
+    ethnicity,
     geometry: (record.geometry as VillageRecord['geometry']) ?? fallbackGeometry,
     name,
     primaryId,
     raw: record.raw ?? {},
-    searchText: record.searchText ?? buildSearchText(record),
+    searchText: record.searchText ?? buildSearchText({ ...record, economy, ethnicity }),
     timeline: {
       rawLabel,
       sortYear: record.timeline?.sortYear ?? parseTimelineSortYear(rawLabel),
