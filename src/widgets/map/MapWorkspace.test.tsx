@@ -101,6 +101,9 @@ describe('MapWorkspace', () => {
     expect(screen.getByRole('heading', { name: '村庄地图' })).toBeInTheDocument();
     expect(screen.getByLabelText('居民民族')).toHaveValue('汉族');
     expect(screen.getByLabelText('经济情况')).toHaveValue('种植砂糖橘');
+    expect(screen.getByRole('heading', { name: '筛选与村庄列表' }).parentElement?.parentElement).toContainElement(
+      screen.getByRole('button', { name: '一键清空筛选' }),
+    );
 
     fireEvent.click(screen.getByRole('button', { name: '一键清空筛选' }));
 
@@ -115,7 +118,7 @@ describe('MapWorkspace', () => {
     });
   });
 
-  test('shows ethnicity and economy in both the result list and detail panel', () => {
+  test('renders the merged bottom detail card outside the map stage and across the full landscape row', () => {
     renderWorkspace(
       <MapWorkspace
         activeMode="search"
@@ -138,12 +141,24 @@ describe('MapWorkspace', () => {
       />,
     );
 
-    expect(screen.getByText('在场村庄')).toBeInTheDocument();
-    expect(screen.getByText('叙事详情')).toBeInTheDocument();
+    expect(screen.getByText('显示村庄')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '村庄详情' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '模式解读' })).not.toBeInTheDocument();
     expect(screen.getByText('汉族 / 种植砂糖橘')).toBeInTheDocument();
+    expect(screen.getByText('村庄叙事')).toBeInTheDocument();
+    expect(screen.getByText('阅读提示')).toBeInTheDocument();
     expect(screen.getAllByText('居民民族').length).toBeGreaterThan(0);
     expect(screen.getAllByText('汉族').length).toBeGreaterThan(0);
     expect(screen.getAllByText('经济情况').length).toBeGreaterThan(0);
     expect(screen.getAllByText('种植砂糖橘').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/primaryId:/)).not.toBeInTheDocument();
+    expect(screen.getByTestId('village-list-scroll-region')).toHaveClass('flex-1');
+    expect(screen.getByTestId('village-list-scroll-region')).toHaveClass('overflow-auto');
+    expect(screen.getByTestId('map-stage-content')).not.toContainElement(screen.getByRole('heading', { name: '村庄详情' }));
+    expect(screen.getByTestId('map-detail-full-width-row')).toContainElement(screen.getByTestId('map-detail-panel'));
+    expect(screen.getByTestId('map-landscape-layout')).toHaveClass('[grid-template-rows:minmax(0,52rem)_auto]');
+    expect(screen.getByRole('heading', { name: '筛选与村庄列表' }).closest('section')).toHaveClass('overflow-hidden');
+    expect(screen.getByRole('heading', { name: '筛选与村庄列表' }).closest('section')).toHaveClass('h-full');
+    expect(screen.getByRole('heading', { name: '村庄地图' }).closest('section')).toHaveClass('h-full');
   });
 });

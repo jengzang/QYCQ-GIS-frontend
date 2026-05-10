@@ -17,18 +17,18 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
   const visibleVillages = villages.slice(0, 80);
 
   return (
-    <div className="space-y-3">
+    <div className="flex min-h-0 flex-1 flex-col space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">在场村庄</p>
-          <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">结果列表保持短摘要，便于快速切村庄。</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">显示村庄</p>
+          {/* <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">结果列表保持短摘要，便于快速切村庄。</p> */}
         </div>
         <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/75 px-3 py-1 text-xs font-semibold text-[color:var(--color-text-secondary)]">
-          显示 {visibleVillages.length} / {villages.length}
+          {visibleVillages.length} / {villages.length}
         </span>
       </div>
 
-      <div className="max-h-[28rem] space-y-2 overflow-auto pr-1">
+      <div className="min-h-0 flex-1 space-y-2 overflow-auto pr-1" data-testid="village-list-scroll-region">
         {visibleVillages.map((village) => {
           const isSelected = village.primaryId === selectedPrimaryId;
 
@@ -56,7 +56,6 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
               </div>
               <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">{village.city || '城市未填'} · {village.town || '乡镇未填'}</p>
               <p className="mt-1 text-xs leading-5 text-[color:var(--color-text-secondary)]">{buildSecondaryMeta(village)}</p>
-              <p className="mt-1 text-xs leading-5 text-[color:var(--color-text-tertiary)]">primaryId: {village.primaryId}</p>
             </button>
           );
         })}

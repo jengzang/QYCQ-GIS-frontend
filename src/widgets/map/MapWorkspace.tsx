@@ -13,7 +13,7 @@ import { mapModeMapping, type MapModeKey } from '@/shared/mappings/nav-mapping';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
 
 import { DetailPanel } from './components/DetailPanel';
-import { FilterPanel } from './components/FilterPanel';
+import { FilterPanel, hasActiveFilters } from './components/FilterPanel';
 import { VillageList } from './components/VillageList';
 import type { MapWorkspaceProps } from './types';
 
@@ -308,14 +308,38 @@ export function MapWorkspace({
   onSelectVillage,
   orientation,
   selectedPrimaryId,
+  townOptions,
   villages,
 }: MapWorkspaceProps) {
   const { mapStyleKey } = useAppPreferences();
   const selectedVillage = getSelectedVillage(villages, selectedPrimaryId);
+  const canClearFilters = hasActiveFilters(filters);
+
+  const clearFiltersButton = (
+    <button
+      aria-label="一键清空筛选"
+      className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/80 px-2.5 py-1 text-[11px] font-medium leading-none text-[color:var(--color-primary-strong)] shadow-[var(--shadow-soft)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+      disabled={!canClearFilters}
+      onClick={() =>
+        onFiltersChange({
+          city: '',
+          dialect: '',
+          economy: '',
+          ethnicity: '',
+          q: '',
+          town: '',
+          year: null,
+        })
+      }
+      type="button"
+    >
+      清空
+    </button>
+  );
 
   const filterContent = useMemo(
     () => (
-      <div className="space-y-4">
+      <div className="flex h-full min-h-0 flex-col space-y-4">
         <ModeTabs activeMode={activeMode} onModeChange={onModeChange} />
         <FilterPanel
           activeMode={activeMode}
@@ -323,6 +347,7 @@ export function MapWorkspace({
           filters={filters}
           onFiltersChange={onFiltersChange}
           orientation={orientation}
+          townOptions={townOptions}
         />
         <VillageList
           activeMode={activeMode}
@@ -332,11 +357,22 @@ export function MapWorkspace({
         />
       </div>
     ),
-    [activeMode, facets, filters, onFiltersChange, onModeChange, onSelectVillage, orientation, selectedPrimaryId, villages],
+    [activeMode, facets, filters, onFiltersChange, onModeChange, onSelectVillage, orientation, selectedPrimaryId, townOptions, villages],
+  );
+
+  const detailPanel = (
+    <div data-testid="map-detail-panel">
+      <DetailPanel
+        activeMode={activeMode}
+        hasInvalidSelection={hasInvalidSelection}
+        hasVillages={villages.length > 0}
+        selectedVillage={selectedVillage}
+      />
+    </div>
   );
 
   const mapContent = (
-    <div className="space-y-4">
+    <div className="flex h-full min-h-0 flex-col gap-4" data-testid="map-stage-content">
       {activeMode === 'dialect' ? <DialectLegend /> : null}
       <MapCanvas
         activeMode={activeMode}
@@ -345,43 +381,59 @@ export function MapWorkspace({
         selectedPrimaryId={selectedPrimaryId}
         villages={villages}
       />
-      <div data-testid="map-detail-panel">
-        <DetailPanel
-          activeMode={activeMode}
-          hasInvalidSelection={hasInvalidSelection}
-          hasVillages={villages.length > 0}
-          selectedVillage={selectedVillage}
-        />
-      </div>
     </div>
   );
 
   if (orientation === 'portrait') {
     return (
       <div className="grid gap-4" data-testid="map-portrait-layout">
-        <SurfaceCard title="筛选与村庄列表" description="先切模式，再筛选，再从结果列表或地图点位进入详情。" eyebrow="Control deck">
+        <SurfaceCard
+          description="先切模式，再筛选，再从结果列表或地图点位进入详情。"
+          headerActions={clearFiltersButton}
+          title="筛选与村庄列表"
+        >
           {filterContent}
         </SurfaceCard>
 
-        <SurfaceCard title="村庄地图" description="地图区域放到主视线位置，详情放在下方连续阅读。" eyebrow="Map stage">
+        <SurfaceCard title="村庄地图" description="地图保持在主视线位置，详情在下部展开连续阅读。">
           {mapContent}
         </SurfaceCard>
+
+        {detailPanel}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 [grid-template-columns:22rem_minmax(0,1fr)]" data-testid="map-landscape-layout">
-      <aside className="space-y-4">
-        <SurfaceCard title="筛选与村庄列表" description="筛选、列表、点选保持在左侧，减少来回扫视成本。" eyebrow="Control deck">
+    <div
+      className="grid gap-4 [grid-template-columns:22rem_minmax(0,1fr)] [grid-template-rows:minmax(0,52rem)_auto]"
+      data-testid="map-landscape-layout"
+    >
+      <aside className="h-full min-h-0">
+        <SurfaceCard
+          className="h-full overflow-hidden"
+          contentClassName="flex h-full min-h-0 flex-col"
+          headerActions={clearFiltersButton}
+          title="筛选与村庄列表"
+          // description="筛选、列表、点选保持在左侧，减少来回扫视成本。"
+        >
           {filterContent}
         </SurfaceCard>
       </aside>
 
-      <section className="space-y-4">
-        <SurfaceCard title="村庄地图" description="地图放大为主内容区，详情改为下方承接，不再拆成第三栏。" eyebrow="Map stage">
+      <section className="h-full min-h-0">
+        <SurfaceCard
+          className="h-full"
+          contentClassName="flex h-full min-h-0 flex-col"
+          title="村庄地图"
+          // description="地图单独承担定位与分布阅读，详情拆到整行下方单独展开。"
+        >
           {mapContent}
         </SurfaceCard>
+      </section>
+
+      <section className="col-span-2" data-testid="map-detail-full-width-row">
+        {detailPanel}
       </section>
     </div>
   );

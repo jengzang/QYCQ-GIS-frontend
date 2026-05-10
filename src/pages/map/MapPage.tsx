@@ -1,13 +1,11 @@
-import { useDeferredValue } from 'react';
+import { useDeferredValue, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useVillageFacetsQuery, useVillagesQuery } from '@/entities/village/api/hooks';
 import { resolveVillageSelection } from '@/pages/map/selection';
-import { mapPageCopy } from '@/shared/lib/demo-content';
 import { useOrientationMode } from '@/shared/lib/orientation';
 import { mapModeMapping, type MapModeKey } from '@/shared/mappings/nav-mapping';
 import { queryParamMapping } from '@/shared/mappings/query-param-mapping';
-import { PageHero } from '@/shared/ui/PageHero';
 import { SiteShell } from '@/shared/ui/SiteShell';
 import { MapWorkspace } from '@/widgets/map/MapWorkspace';
 
@@ -24,6 +22,10 @@ function parseTimelineYear(value: string | null, fallbackValue: number | null) {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallbackValue;
+}
+
+function sortTownOptions(towns: string[]) {
+  return [...new Set(towns.filter(Boolean))].sort((left, right) => left.localeCompare(right, 'zh-Hans-CN'));
 }
 
 export function MapPage() {
@@ -50,8 +52,16 @@ export function MapPage() {
     ethnicity: ethnicity || undefined,
     q: deferredQ || undefined,
     timelineEnd: activeMode === 'timeline' ? timelineYear : null,
-    town: town || undefined,
+    town: city && town ? town : undefined,
   });
+  const { data: cityVillages = [], isLoading: isCityVillagesLoading } = useVillagesQuery(
+    { city: city || undefined },
+    { enabled: Boolean(city) },
+  );
+  const availableTownOptions = useMemo(
+    () => sortTownOptions(cityVillages.map((village) => village.town ?? '')),
+    [cityVillages],
+  );
   const requestedPrimaryId = searchParams.get(queryParamMapping.primaryId);
   const { hasInvalidRequestedPrimaryId, selectedPrimaryId } = resolveVillageSelection(
     requestedPrimaryId,
@@ -77,27 +87,25 @@ export function MapPage() {
     setSearchParams(next, { replace: options?.replace ?? true });
   };
 
+  useEffect(() => {
+    if (!town) {
+      return;
+    }
+
+    if (!city || !availableTownOptions.includes(town)) {
+      updateParams(
+        {
+          [queryParamMapping.primaryId]: null,
+          [queryParamMapping.town]: null,
+        },
+        { replace: true },
+      );
+    }
+  }, [availableTownOptions, city, town]);
+
   return (
     <SiteShell>
       <div className="grid gap-4">
-        <PageHero
-          description={mapPageCopy.description}
-          eyebrow={mapPageCopy.eyebrow}
-          metrics={[
-            {
-              hint: '当前地图浏览方式。',
-              label: '当前模式',
-              value: mapModeMapping.find((item) => item.key === activeMode)?.label ?? '村庄检索',
-            },
-            {
-              hint: '符合当前筛选条件的村庄数量。',
-              label: '筛选结果',
-              value: String(villages.length),
-            },
-          ]}
-          title={mapPageCopy.title}
-        />
-
         <MapWorkspace
           activeMode={activeMode}
           facets={facets}
@@ -110,7 +118,7 @@ export function MapPage() {
             town,
             year: timelineYear,
           }}
-          isLoading={isFacetsLoading || isVillagesLoading}
+          isLoading={isFacetsLoading || isVillagesLoading || (Boolean(city) && isCityVillagesLoading)}
           orientation={orientation}
           onFiltersChange={(updates) =>
             updateParams(
@@ -130,7 +138,8 @@ export function MapPage() {
                     ? null
                     : selectedPrimaryId,
                 [queryParamMapping.q]: updates.q ?? q,
-                [queryParamMapping.town]: updates.town ?? town,
+                [queryParamMapping.town]:
+                  updates.city !== undefined ? null : updates.town ?? town,
                 [queryParamMapping.year]:
                   updates.year === null || updates.year === undefined ? null : String(updates.year),
               },
@@ -155,6 +164,7 @@ export function MapPage() {
           }
           hasInvalidSelection={hasInvalidRequestedPrimaryId}
           selectedPrimaryId={selectedPrimaryId}
+          townOptions={availableTownOptions}
           villages={villages}
         />
       </div>

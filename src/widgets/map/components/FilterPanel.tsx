@@ -12,9 +12,10 @@ interface FilterPanelProps {
   filters: MapFilters;
   onFiltersChange: (updates: MapFilterUpdates) => void;
   orientation: OrientationMode;
+  townOptions?: string[];
 }
 
-function hasActiveFilters(filters: MapFilters) {
+export function hasActiveFilters(filters: MapFilters) {
   return Boolean(
     filters.city ||
       filters.dialect ||
@@ -38,37 +39,14 @@ function FieldShell({ children, title }: { children: ReactNode; title: string })
 const inputClassName =
   'rounded-[1.2rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-surface-strong)] px-4 py-3 text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(59,130,246,0.08)]';
 
-export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orientation }: FilterPanelProps) {
+export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orientation, townOptions }: FilterPanelProps) {
   const timelineMin = facets?.timelineRange.min ?? 1400;
   const timelineMax = facets?.timelineRange.max ?? 2000;
+  const isTownDisabled = !filters.city;
+  const resolvedTownOptions = isTownDisabled ? [] : townOptions ?? [];
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">精筛控制台</p>
-          <p className="mt-1 text-sm leading-6 text-[color:var(--color-text-secondary)]">按地域、民族、经济与关键词组合筛选，把地图、列表与详情压成一套顺手的检索节奏。</p>
-        </div>
-        <button
-          className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[color:var(--color-primary-strong)] shadow-[var(--shadow-soft)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={!hasActiveFilters(filters)}
-          onClick={() =>
-            onFiltersChange({
-              city: '',
-              dialect: '',
-              economy: '',
-              ethnicity: '',
-              q: '',
-              town: '',
-              year: null,
-            })
-          }
-          type="button"
-        >
-          一键清空筛选
-        </button>
-      </div>
-
       <div className="grid gap-3">
         <FieldShell title="关键词检索">
           <input
@@ -93,9 +71,14 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
           </FieldShell>
 
           <FieldShell title="归属镇">
-            <select className={inputClassName} onChange={(event) => onFiltersChange({ town: event.currentTarget.value })} value={filters.town}>
-              <option value="">全部乡镇</option>
-              {facets?.towns.map((town) => (
+            <select
+              className={inputClassName}
+              disabled={isTownDisabled}
+              onChange={(event) => onFiltersChange({ town: event.currentTarget.value })}
+              value={filters.town}
+            >
+              <option value="">{isTownDisabled ? '请先选择归属市' : '全部乡镇'}</option>
+              {resolvedTownOptions.map((town) => (
                 <option key={town} value={town}>
                   {town}
                 </option>

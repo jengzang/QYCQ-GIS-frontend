@@ -26,5 +26,6 @@ export interface MapWorkspaceProps {
   onSelectVillage: (primaryId: string) => void;
   orientation: OrientationMode;
   selectedPrimaryId: string;
+  townOptions?: string[];
   villages: VillageRecord[];
 }
