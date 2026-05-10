@@ -10,7 +10,7 @@ export function SiteShell({ children }: PropsWithChildren) {
   const isPortrait = orientation === 'portrait';
 
   return (
-    <div className={['relative min-h-screen overflow-hidden bg-[color:var(--color-bg-page)] text-[color:var(--color-text-primary)]', isPortrait ? 'px-4 py-4' : 'px-6 py-5'].join(' ')}>
+    <div className={['relative min-h-screen bg-[color:var(--color-bg-page)] text-[color:var(--color-text-primary)]', isPortrait ? 'px-4 py-4' : 'px-6 py-5'].join(' ')}>
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-0 h-56 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),transparent)]" />
         <div className="absolute left-[-7rem] top-[-5rem] h-52 w-52 rounded-full bg-[radial-gradient(circle,rgba(174,196,224,0.22),transparent_68%)] blur-3xl" />
@@ -18,16 +18,16 @@ export function SiteShell({ children }: PropsWithChildren) {
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-7xl flex-col gap-5">
-        <header className="rounded-[1.8rem] border border-[color:var(--color-border-subtle)] bg-white/84 shadow-[var(--shadow-soft)] backdrop-blur-md">
-          <div className={[
-            'gap-5',
-            isPortrait ? 'flex flex-col p-5' : 'flex items-center justify-between px-6 py-5',
-          ].join(' ')}>
+        <header className="sticky top-4 z-50 rounded-[1.8rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-surface-strong)] shadow-[var(--shadow-soft)] backdrop-blur-md">
+          <div
+            className={[
+              'gap-5',
+              isPortrait ? 'flex flex-col p-5' : 'flex items-center justify-between px-6 py-5',
+            ].join(' ')}
+          >
             <div className="min-w-0 space-y-1">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.26em] text-[color:var(--color-text-tertiary)]">Guangdong Village Atlas</p>
               <div>
-                <h1 className="text-[1.35rem] font-semibold tracking-[-0.04em] text-[color:var(--color-text-primary)]">全粤村情</h1>
-                <p className="mt-1 text-sm leading-6 text-[color:var(--color-text-secondary)]">广东村落信息与文化线索导览</p>
+                <h1 className="text-[1.35rem] font-semibold tracking-[-0.04em] text-[color:var(--color-text-primary)]">全粤村情数据展示</h1>
               </div>
             </div>
 
@@ -40,7 +40,7 @@ export function SiteShell({ children }: PropsWithChildren) {
                       'rounded-full px-4 py-2 text-sm font-medium transition',
                       isActive
                         ? 'bg-[color:var(--color-bg-soft)] text-[color:var(--color-text-primary)] shadow-[0_10px_24px_rgba(50,69,95,0.08)]'
-                        : 'text-[color:var(--color-text-secondary)] hover:bg-white hover:text-[color:var(--color-text-primary)]',
+                        : 'text-[color:var(--color-text-secondary)] hover:bg-[color:var(--color-bg-surface)] hover:text-[color:var(--color-text-primary)]',
                     ].join(' ')
                   }
                   to={item.path}

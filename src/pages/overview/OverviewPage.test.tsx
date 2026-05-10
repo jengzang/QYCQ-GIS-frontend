@@ -27,6 +27,10 @@ vi.mock('@/shared/lib/orientation', () => ({
   useOrientationMode: () => 'landscape',
 }));
 
+vi.mock('@/widgets/map/OverviewMapSection', () => ({
+  OverviewMapSection: () => <div>地图总览</div>,
+}));
+
 vi.mock('@/entities/village/api/hooks', () => ({
   useVillageFacetsQuery: () => ({
     data: {
@@ -55,6 +59,7 @@ describe('OverviewPage', () => {
     expect(screen.getByRole('heading', { name: '课题简介' })).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: /进入村庄地图/i })[0]).toHaveAttribute('href', '/map');
     expect(screen.getByRole('heading', { name: '栏目导览' })).toBeInTheDocument();
+    expect(screen.getByText('地图总览')).toBeInTheDocument();
     expect(screen.getByText('研究对象')).toBeInTheDocument();
     expect(screen.getByText('代表村落')).toBeInTheDocument();
     expect(screen.queryByText('演示节奏')).not.toBeInTheDocument();

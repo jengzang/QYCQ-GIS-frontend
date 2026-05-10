@@ -8,6 +8,7 @@ import { routeMapping } from '@/shared/mappings/route-mapping';
 import { PageHero } from '@/shared/ui/PageHero';
 import { SiteShell } from '@/shared/ui/SiteShell';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
+import { OverviewMapSection } from '@/widgets/map/OverviewMapSection';
 
 const overviewEntryCards = [
   {
@@ -92,6 +93,8 @@ export function OverviewPage() {
             ))}
           </div>
         </SurfaceCard>
+
+        <OverviewMapSection villages={villages} />
 
         <div className={['grid gap-4', isPortrait ? 'grid-cols-1' : 'grid-cols-3'].join(' ')}>
           {overviewCards.map((card) => (

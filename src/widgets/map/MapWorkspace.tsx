@@ -1,18 +1,12 @@
 import maplibregl, { type GeoJSONSource, type Map } from 'maplibre-gl';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 
 import type { Feature, FeatureCollection, Point } from 'geojson';
 
+import { useAppPreferences } from '@/app/providers/AppPreferencesProvider';
 import type { VillageRecord } from '@/entities/village/model/types';
 import { runtimeConfig } from '@/shared/config/runtime';
-import {
-  type MapStyleKey,
-  getAvailableMapStyleOptions,
-  getMapStyle,
-  getMapStyleLabel,
-  mapStyleStorageKey,
-  resolveAvailableMapStyleKey,
-} from '@/shared/lib/map-style';
+import { type MapStyleKey, getMapStyle } from '@/shared/lib/map-style';
 import { dialectLegendMapping } from '@/shared/mappings/dialect-mapping';
 import { mapLayerMapping } from '@/shared/mappings/map-layer-mapping';
 import { mapModeMapping, type MapModeKey } from '@/shared/mappings/nav-mapping';
@@ -39,19 +33,6 @@ const mapBounds: [[number, number], [number, number]] = [
   [109.6, 20.2],
   [117.3, 25.6],
 ];
-
-function getStoredMapStyleKey() {
-  if (typeof window === 'undefined') {
-    return runtimeConfig.mapStyleKey;
-  }
-
-  const storedMapStyleKey = window.localStorage.getItem(mapStyleStorageKey);
-  if (storedMapStyleKey === null) {
-    return resolveAvailableMapStyleKey(runtimeConfig.mapStyleKey, runtimeConfig.mapStyleUrl, runtimeConfig.mapStyleKey);
-  }
-
-  return resolveAvailableMapStyleKey(storedMapStyleKey, runtimeConfig.mapStyleUrl, runtimeConfig.mapStyleKey);
-}
 
 function getSelectedVillage(villages: VillageRecord[], selectedPrimaryId: string) {
   return villages.find((village) => village.primaryId === selectedPrimaryId) ?? null;
@@ -185,66 +166,18 @@ function ModeTabs({ activeMode, onModeChange }: Pick<MapWorkspaceProps, 'activeM
   );
 }
 
-function MapStyleSwitcher({
-  onMapStyleChange,
-  selectedMapStyle,
-}: {
-  onMapStyleChange: (styleKey: MapStyleKey) => void;
-  selectedMapStyle: MapStyleKey;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
+function DialectLegend() {
   return (
-    <div className="rounded-[1.6rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(255,255,255,0.9),rgba(240,247,255,0.82))] p-4 shadow-[var(--shadow-soft)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-tertiary)]">底图来源</p>
-          <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">统一 MapLibre 底图源，切换后村庄图层会自动重挂。</p>
-        </div>
-        <button
-          aria-expanded={isOpen}
-          aria-label={`切换底图：${getMapStyleLabel(selectedMapStyle)}`}
-          className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border-subtle)] bg-white/90 px-4 py-2 text-sm font-semibold text-[color:var(--color-primary-strong)] shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:bg-white"
-          onClick={() => setIsOpen((open) => !open)}
-          type="button"
+    <div className="flex flex-wrap gap-2">
+      {Object.entries(dialectLegendMapping).map(([label, meta]) => (
+        <div
+          key={label}
+          className="rounded-full px-3 py-1 text-xs font-semibold text-white shadow-[var(--shadow-soft)]"
+          style={{ backgroundColor: meta.mapColor }}
         >
-          <span>{getMapStyleLabel(selectedMapStyle)}</span>
-          <span className="text-xs text-[color:var(--color-text-tertiary)]">{isOpen ? '▲' : '▼'}</span>
-        </button>
-      </div>
-
-      {isOpen ? (
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          {getAvailableMapStyleOptions(runtimeConfig.mapStyleUrl).map((option) => {
-            const isActive = option.key === selectedMapStyle;
-
-            return (
-              <button
-                key={option.key}
-                aria-pressed={isActive}
-                aria-label={`切换到底图：${option.label}`}
-                className={[
-                  'rounded-[1.2rem] border px-4 py-3 text-left text-sm font-semibold transition',
-                  'border-[color:var(--color-border-subtle)] bg-white/80 text-[color:var(--color-text-primary)] shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:bg-white',
-                  isActive
-                    ? 'border-[color:var(--color-border-strong)] bg-[linear-gradient(135deg,#ffffff,#eaf3ff)] text-[color:var(--color-primary-strong)] shadow-[0_16px_32px_rgba(59,130,246,0.16)]'
-                    : '',
-                ].join(' ')}
-                onClick={() => {
-                  onMapStyleChange(option.key);
-                  setIsOpen(false);
-                }}
-                type="button"
-              >
-                <span className="block">{option.label}</span>
-                <span className="mt-1 block text-xs font-medium text-[color:var(--color-text-tertiary)]">
-                  {isActive ? '当前使用中' : '点击切换'}
-                </span>
-              </button>
-            );
-          })}
+          {label}
         </div>
-      ) : null}
+      ))}
     </div>
   );
 }
@@ -341,66 +274,26 @@ function MapCanvas({
 
   if (typeof window === 'undefined' || !('WebGLRenderingContext' in window)) {
     return (
-      <div className="flex min-h-[30rem] items-center justify-center rounded-[2rem] bg-[linear-gradient(160deg,#eef6ff,#f8fbff)] p-6 text-center text-sm leading-7 text-[color:var(--color-text-secondary)]">
+      <div className="flex h-[38rem] items-center justify-center rounded-[2rem] bg-[linear-gradient(160deg,#e8f1fb,#f5f8fc)] p-6 text-center text-sm leading-7 text-[color:var(--color-text-secondary)] md:h-[44rem]">
         当前环境未启用 WebGL，测试和无图形环境下会回退到静态地图占位。浏览器里将自动切换到 MapLibre。
       </div>
     );
   }
 
-  return <div className="min-h-[30rem] overflow-hidden rounded-[2rem]" ref={containerRef} />;
-}
-
-function DialectLegend() {
   return (
-    <div className="flex flex-wrap gap-2">
-      {Object.entries(dialectLegendMapping).map(([label, meta]) => (
-        <div
-          key={label}
-          className="rounded-full px-3 py-1 text-xs font-semibold text-white shadow-[var(--shadow-soft)]"
-          style={{ backgroundColor: meta.mapColor }}
-        >
-          {label}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function StageIntro({
-  activeMode,
-  isLoading,
-  selectedMapStyle,
-  villagesLength,
-}: {
-  activeMode: MapModeKey;
-  isLoading?: boolean;
-  selectedMapStyle: MapStyleKey;
-  villagesLength: number;
-}) {
-  const descriptions: Record<MapModeKey, string> = {
-    dialect: '把语言分布直接投到地图上，用图例和点位把差异读出来。',
-    search: '先定向检索，再从列表或地图点选进入单村叙事。',
-    timeline: '把建村时间推进成一条可浏览的空间时间线。',
-  };
-
-  return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
-      <div className="rounded-[1.6rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(244,248,255,0.74))] p-5 shadow-[var(--shadow-soft)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">地图主舞台</p>
-        <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[color:var(--color-text-primary)]">{mapModeMapping.find((item) => item.key === activeMode)?.label}</p>
-        <p className="mt-3 text-sm leading-7 text-[color:var(--color-text-secondary)]">{descriptions[activeMode]}</p>
-      </div>
-      <div className="grid gap-3">
-        <div className="rounded-[1.4rem] border border-[color:var(--color-border-subtle)] bg-white/76 p-4 shadow-[var(--shadow-soft)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-tertiary)]">当前结果</p>
-          <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[color:var(--color-text-primary)]">{villagesLength}</p>
-        </div>
-        <div className="rounded-[1.4rem] border border-[color:var(--color-border-subtle)] bg-white/76 p-4 shadow-[var(--shadow-soft)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-tertiary)]">运行状态</p>
-          <p className="mt-2 text-sm font-semibold text-[color:var(--color-primary-strong)]">{isLoading ? '正在加载数据…' : 'MapLibre 已接入'}</p>
-          <p className="mt-2 text-xs leading-5 text-[color:var(--color-text-secondary)]">当前底图：{getMapStyleLabel(selectedMapStyle)}</p>
-        </div>
-      </div>
+    <div className="relative h-[38rem] overflow-hidden rounded-[2rem] border border-[color:var(--color-border-subtle)] bg-[#edf4fa] shadow-[var(--shadow-stage)] md:h-[44rem]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.8),transparent_24%),linear-gradient(180deg,rgba(209,228,244,0.72),rgba(236,243,248,0.82))]" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(84,110,135,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(84,110,135,0.08) 1px, transparent 1px)',
+          backgroundPosition: '0 0, 0 0',
+          backgroundSize: '72px 72px, 72px 72px',
+        }}
+      />
+      <div className="absolute inset-0 z-10 h-full w-full" ref={containerRef} />
     </div>
   );
 }
@@ -410,7 +303,6 @@ export function MapWorkspace({
   facets,
   filters,
   hasInvalidSelection = false,
-  isLoading,
   onFiltersChange,
   onModeChange,
   onSelectVillage,
@@ -418,83 +310,79 @@ export function MapWorkspace({
   selectedPrimaryId,
   villages,
 }: MapWorkspaceProps) {
-  const [selectedMapStyle, setSelectedMapStyle] = useState<MapStyleKey>(getStoredMapStyleKey);
+  const { mapStyleKey } = useAppPreferences();
   const selectedVillage = getSelectedVillage(villages, selectedPrimaryId);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(mapStyleStorageKey, selectedMapStyle);
-    }
-  }, [selectedMapStyle]);
-
-  const filterContent = (
-    <div className="space-y-4">
-      <ModeTabs activeMode={activeMode} onModeChange={onModeChange} />
-      <FilterPanel activeMode={activeMode} facets={facets} filters={filters} onFiltersChange={onFiltersChange} orientation={orientation} />
-      <VillageList activeMode={activeMode} onSelectVillage={onSelectVillage} selectedPrimaryId={selectedPrimaryId} villages={villages} />
-    </div>
+  const filterContent = useMemo(
+    () => (
+      <div className="space-y-4">
+        <ModeTabs activeMode={activeMode} onModeChange={onModeChange} />
+        <FilterPanel
+          activeMode={activeMode}
+          facets={facets}
+          filters={filters}
+          onFiltersChange={onFiltersChange}
+          orientation={orientation}
+        />
+        <VillageList
+          activeMode={activeMode}
+          onSelectVillage={onSelectVillage}
+          selectedPrimaryId={selectedPrimaryId}
+          villages={villages}
+        />
+      </div>
+    ),
+    [activeMode, facets, filters, onFiltersChange, onModeChange, onSelectVillage, orientation, selectedPrimaryId, villages],
   );
 
   const mapContent = (
     <div className="space-y-4">
-      <StageIntro activeMode={activeMode} isLoading={isLoading} selectedMapStyle={selectedMapStyle} villagesLength={villages.length} />
-      <MapStyleSwitcher onMapStyleChange={setSelectedMapStyle} selectedMapStyle={selectedMapStyle} />
       {activeMode === 'dialect' ? <DialectLegend /> : null}
       <MapCanvas
         activeMode={activeMode}
-        mapStyleKey={selectedMapStyle}
+        mapStyleKey={mapStyleKey}
         onSelectVillage={onSelectVillage}
         selectedPrimaryId={selectedPrimaryId}
         villages={villages}
       />
-    </div>
-  );
-
-  if (orientation === 'portrait') {
-    return (
-      <div className="grid gap-4" data-testid="map-portrait-layout">
-        <SurfaceCard title="精筛控制台" description="先切模式、再筛选、再快速浏览结果。" eyebrow="控制面板">
-          {filterContent}
-        </SurfaceCard>
-
-        <SurfaceCard title="地图主舞台" description="点选地图或列表，详情都通过 primaryId 联动。" eyebrow="Map stage">
-          {mapContent}
-        </SurfaceCard>
-
-        <div data-testid="map-drawer">
-          <DetailPanel
-            activeMode={activeMode}
-            hasInvalidSelection={hasInvalidSelection}
-            hasVillages={villages.length > 0}
-            selectedVillage={selectedVillage}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid gap-4 [grid-template-columns:22rem_minmax(0,1fr)_24rem]" data-testid="map-landscape-layout">
-      <aside className="space-y-4" data-testid="map-landscape-sidebar">
-        <SurfaceCard title="精筛控制台" description="横屏下把筛选与列表固定在左侧，保持连续操作手感。" eyebrow="Control deck">
-          {filterContent}
-        </SurfaceCard>
-      </aside>
-
-      <section className="space-y-4">
-        <SurfaceCard title="地图主舞台" description="当前接入统一底图库，所有 MapLibre 实例都可复用同一套底图来源与切换逻辑。" eyebrow="Main stage">
-          {mapContent}
-        </SurfaceCard>
-      </section>
-
-      <aside className="space-y-4">
+      <div data-testid="map-detail-panel">
         <DetailPanel
           activeMode={activeMode}
           hasInvalidSelection={hasInvalidSelection}
           hasVillages={villages.length > 0}
           selectedVillage={selectedVillage}
         />
+      </div>
+    </div>
+  );
+
+  if (orientation === 'portrait') {
+    return (
+      <div className="grid gap-4" data-testid="map-portrait-layout">
+        <SurfaceCard title="筛选与村庄列表" description="先切模式，再筛选，再从结果列表或地图点位进入详情。" eyebrow="Control deck">
+          {filterContent}
+        </SurfaceCard>
+
+        <SurfaceCard title="村庄地图" description="地图区域放到主视线位置，详情放在下方连续阅读。" eyebrow="Map stage">
+          {mapContent}
+        </SurfaceCard>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 [grid-template-columns:22rem_minmax(0,1fr)]" data-testid="map-landscape-layout">
+      <aside className="space-y-4">
+        <SurfaceCard title="筛选与村庄列表" description="筛选、列表、点选保持在左侧，减少来回扫视成本。" eyebrow="Control deck">
+          {filterContent}
+        </SurfaceCard>
       </aside>
+
+      <section className="space-y-4">
+        <SurfaceCard title="村庄地图" description="地图放大为主内容区，详情改为下方承接，不再拆成第三栏。" eyebrow="Map stage">
+          {mapContent}
+        </SurfaceCard>
+      </section>
     </div>
   );
 }

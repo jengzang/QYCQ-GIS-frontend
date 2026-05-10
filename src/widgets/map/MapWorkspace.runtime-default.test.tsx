@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 
+import { AppPreferencesProvider } from '@/app/providers/AppPreferencesProvider';
 import type { VillageFacets } from '@/entities/village/api/types';
 import type { VillageRecord } from '@/entities/village/model/types';
 
@@ -48,31 +49,35 @@ const facets: VillageFacets = {
 };
 
 describe('MapWorkspace runtime defaults', () => {
-  test('uses runtimeConfig.mapStyleKey when localStorage is empty', () => {
+  test('keeps the map page free of bottom-map status chrome when localStorage is empty', () => {
     window.localStorage.clear();
 
     render(
-      <MapWorkspace
-        activeMode="search"
-        facets={facets}
-        filters={{
-          city: '',
-          dialect: '',
-          economy: '',
-          ethnicity: '',
-          q: '',
-          town: '',
-          year: null,
-        }}
-        onFiltersChange={vi.fn()}
-        onModeChange={vi.fn()}
-        onSelectVillage={vi.fn()}
-        orientation="landscape"
-        selectedPrimaryId="vlg-fb354cdb"
-        villages={[village]}
-      />,
+      <AppPreferencesProvider>
+        <MapWorkspace
+          activeMode="search"
+          facets={facets}
+          filters={{
+            city: '',
+            dialect: '',
+            economy: '',
+            ethnicity: '',
+            q: '',
+            town: '',
+            year: null,
+          }}
+          onFiltersChange={vi.fn()}
+          onModeChange={vi.fn()}
+          onSelectVillage={vi.fn()}
+          orientation="landscape"
+          selectedPrimaryId="vlg-fb354cdb"
+          villages={[village]}
+        />
+      </AppPreferencesProvider>,
     );
 
-    expect(screen.getByRole('button', { name: '切换底图：ArcGIS 卫星图' })).toBeInTheDocument();
+    expect(screen.queryByText('底图来源')).not.toBeInTheDocument();
+    expect(screen.queryByText('运行状态')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '村庄地图' })).toBeInTheDocument();
   });
 });

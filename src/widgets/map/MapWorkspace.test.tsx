@@ -1,10 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { describe, expect, test, vi } from 'vitest';
 
-import { MapWorkspace } from './MapWorkspace';
-
+import { AppPreferencesProvider } from '@/app/providers/AppPreferencesProvider';
 import type { VillageFacets } from '@/entities/village/api/types';
 import type { VillageRecord } from '@/entities/village/model/types';
+import { MapWorkspace } from './MapWorkspace';
 
 const village: VillageRecord = {
   city: '肇庆市',
@@ -36,11 +37,15 @@ const facets: VillageFacets = {
 };
 
 describe('MapWorkspace', () => {
-  test('falls back to the default registry style when stale runtime selection is stored', () => {
+  function renderWorkspace(ui: ReactElement) {
+    return render(<AppPreferencesProvider>{ui}</AppPreferencesProvider>);
+  }
+
+  test('uses the stored/runtime style silently without rendering map source controls', () => {
     window.localStorage.clear();
     window.localStorage.setItem('qycq-map-style', 'runtime');
 
-    render(
+    renderWorkspace(
       <MapWorkspace
         activeMode="search"
         facets={facets}
@@ -62,47 +67,15 @@ describe('MapWorkspace', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: '切换底图：高德地图' })).toBeInTheDocument();
-  });
-
-  test('renders map source switcher and persists the selected style', () => {
-    window.localStorage.clear();
-
-    render(
-      <MapWorkspace
-        activeMode="search"
-        facets={facets}
-        filters={{
-          city: '',
-          dialect: '',
-          economy: '',
-          ethnicity: '',
-          q: '',
-          town: '',
-          year: null,
-        }}
-        onFiltersChange={vi.fn()}
-        onModeChange={vi.fn()}
-        onSelectVillage={vi.fn()}
-        orientation="landscape"
-        selectedPrimaryId="vlg-fb354cdb"
-        villages={[village]}
-      />,
-    );
-
-    expect(screen.getByRole('button', { name: '切换底图：高德地图' })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: '切换底图：高德地图' }));
-    fireEvent.click(screen.getByRole('button', { name: '切换到底图：ArcGIS 卫星图' }));
-
-    expect(window.localStorage.getItem('qycq-map-style')).toBe('arcgis_satellite');
-    expect(screen.getByRole('button', { name: '切换底图：ArcGIS 卫星图' })).toBeInTheDocument();
+    expect(screen.queryByText('底图来源')).not.toBeInTheDocument();
+    expect(screen.queryByText('运行状态')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '村庄地图' })).toBeInTheDocument();
   });
 
   test('renders extended filters and clears them in one action', () => {
     const onFiltersChange = vi.fn();
 
-    render(
+    renderWorkspace(
       <MapWorkspace
         activeMode="search"
         facets={facets}
@@ -124,8 +97,8 @@ describe('MapWorkspace', () => {
       />,
     );
 
-    expect(screen.getByRole('heading', { name: '精筛控制台' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '地图主舞台' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '筛选与村庄列表' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '村庄地图' })).toBeInTheDocument();
     expect(screen.getByLabelText('居民民族')).toHaveValue('汉族');
     expect(screen.getByLabelText('经济情况')).toHaveValue('种植砂糖橘');
 
@@ -143,7 +116,7 @@ describe('MapWorkspace', () => {
   });
 
   test('shows ethnicity and economy in both the result list and detail panel', () => {
-    render(
+    renderWorkspace(
       <MapWorkspace
         activeMode="search"
         facets={facets}

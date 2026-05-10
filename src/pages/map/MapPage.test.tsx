@@ -76,21 +76,33 @@ function setOrientation(portrait: boolean) {
 }
 
 describe('MapPage layout', () => {
+  test('uses a two-column landscape layout instead of the old three-column split', () => {
+    setOrientation(false);
+    window.history.pushState({}, '', '/map');
+
+    render(<App />);
+
+    expect(screen.getByTestId('map-landscape-layout')).toBeInTheDocument();
+    expect(screen.queryByText('运行状态')).not.toBeInTheDocument();
+    expect(screen.queryByText('底图来源')).not.toBeInTheDocument();
+  });
+
   beforeEach(() => {
     window.history.pushState({}, '', '/map');
     useVillageFacetsQueryMock.mockClear();
     useVillagesQueryMock.mockClear();
   });
 
-  test('switches to the portrait drawer layout', () => {
+  test('switches to the portrait stacked layout', () => {
     setOrientation(true);
 
     render(<App />);
 
     expect(screen.getByRole('tab', { name: '村庄检索' })).toBeInTheDocument();
     expect(screen.getByTestId('map-portrait-layout')).toBeInTheDocument();
-    expect(screen.getByTestId('map-drawer')).toBeInTheDocument();
-    expect(screen.queryByTestId('map-landscape-sidebar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('map-detail-panel')).toBeInTheDocument();
+    expect(screen.queryByText('运行状态')).not.toBeInTheDocument();
+    expect(screen.queryByText('底图来源')).not.toBeInTheDocument();
   });
 
   test('keeps an invalid primaryId visible as an invalid selection instead of silently swapping villages', () => {
@@ -184,5 +196,24 @@ describe('MapPage layout', () => {
     expect(window.location.search).toContain('ethnicity=%E6%B1%89%E6%97%8F');
     expect(window.location.search).not.toContain('primaryId=');
     expect(pushStateSpy).toHaveBeenCalled();
+  });
+
+  test('settings page is the only place that changes global map style and theme', () => {
+    setOrientation(false);
+    window.localStorage.clear();
+    window.history.pushState({}, '', '/settings');
+
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText('主题模式'), {
+      target: { value: 'dark' },
+    });
+    fireEvent.change(screen.getByLabelText('底图方案'), {
+      target: { value: 'arcgis_satellite' },
+    });
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(window.localStorage.getItem('qycq-map-theme')).toBe('dark');
+    expect(window.localStorage.getItem('qycq-map-style')).toBe('arcgis_satellite');
   });
 });

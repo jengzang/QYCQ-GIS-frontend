@@ -35,6 +35,31 @@
   font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
+:root[data-theme='dark'] {
+  --color-bg-page: #0d1520;
+  --color-bg-page-strong: #121d2b;
+  --color-bg-surface: rgba(17, 26, 39, 0.82);
+  --color-bg-surface-strong: rgba(19, 30, 45, 0.94);
+  --color-bg-soft: rgba(27, 40, 58, 0.9);
+  --color-text-primary: #e6eef7;
+  --color-text-secondary: #b4c2d2;
+  --color-text-tertiary: #8ea0b3;
+  --color-primary: #7da7cc;
+  --color-primary-strong: #a9c7e3;
+  --color-primary-soft: rgba(125, 167, 204, 0.18);
+  --color-accent-warm: rgba(109, 95, 80, 0.28);
+  --color-border-subtle: rgba(145, 167, 189, 0.18);
+  --color-border-strong: rgba(163, 190, 216, 0.32);
+  --shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.28);
+  --shadow-card: 0 18px 42px rgba(0, 0, 0, 0.32);
+  --shadow-stage: 0 26px 70px rgba(0, 0, 0, 0.4);
+  color: var(--color-text-primary);
+  background:
+    radial-gradient(circle at top left, rgba(72, 97, 126, 0.22), transparent 22%),
+    radial-gradient(circle at top right, rgba(88, 76, 60, 0.24), transparent 24%),
+    linear-gradient(180deg, #0b1220 0%, #0d1520 38%, #111c2a 100%);
+}
+
 html,
 body,
 #root {
@@ -44,6 +69,33 @@ body,
 body {
   margin: 0;
   background: transparent;
+}
+
+html,
+body,
+#root,
+button,
+input,
+select,
+a,
+div,
+section,
+aside,
+article,
+header,
+main,
+nav,
+span,
+p,
+h1,
+h2,
+h3,
+li {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 * {
@@ -63,4 +115,22 @@ select {
 
 ::selection {
   background: rgba(85, 122, 149, 0.18);
+}
+
+:root[data-theme='dark'] .bg-white,
+:root[data-theme='dark'] .bg-white\/78,
+:root[data-theme='dark'] .bg-white\/82,
+:root[data-theme='dark'] .bg-white\/84,
+:root[data-theme='dark'] .bg-white\/86,
+:root[data-theme='dark'] .bg-white\/88,
+:root[data-theme='dark'] .bg-white\/94 {
+  background-color: rgba(19, 30, 45, 0.94) !important;
+}
+
+:root[data-theme='dark'] .hover\:bg-white:hover {
+  background-color: rgba(26, 39, 57, 0.96) !important;
+}
+
+:root[data-theme='dark'] .text-white {
+  color: #0d1520 !important;
 }

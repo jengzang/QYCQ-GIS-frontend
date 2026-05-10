@@ -41,13 +41,14 @@ describe('App shell', () => {
     window.history.pushState({}, '', '/overview');
   });
 
-  test('renders the leadership navigation across all four sections', () => {
+  test('renders the leadership navigation across all five sections including settings', () => {
     render(<App />);
 
     expect(screen.getByRole('link', { name: /^课题简介/ })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: /^村庄地图/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /^特色民俗/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /^村名地理/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /^村庄地图/ })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /^特色民俗/ })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /^村名地理/ })[0]).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^设置/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '课题简介' })).toBeInTheDocument();
   });
 });

@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { AppPreferencesProvider } from '@/app/providers/AppPreferencesProvider';
 import type { VillageFacets } from '@/entities/village/api/types';
 import type { VillageRecord } from '@/entities/village/model/types';
 import { getMapStyle } from '@/shared/lib/map-style';
@@ -100,26 +101,28 @@ const facets: VillageFacets = {
 
 function renderWorkspace(overrides: Partial<ComponentProps<typeof MapWorkspace>> = {}) {
   return render(
-    <MapWorkspace
-      activeMode="search"
-      facets={facets}
-      filters={{
-        city: '',
-        dialect: '',
-        economy: '',
-        ethnicity: '',
-        q: '',
-        town: '',
-        year: null,
-      }}
-      onFiltersChange={vi.fn()}
-      onModeChange={vi.fn()}
-      onSelectVillage={vi.fn()}
-      orientation="landscape"
-      selectedPrimaryId="vlg-fb354cdb"
-      villages={[village]}
-      {...overrides}
-    />,
+    <AppPreferencesProvider>
+      <MapWorkspace
+        activeMode="search"
+        facets={facets}
+        filters={{
+          city: '',
+          dialect: '',
+          economy: '',
+          ethnicity: '',
+          q: '',
+          town: '',
+          year: null,
+        }}
+        onFiltersChange={vi.fn()}
+        onModeChange={vi.fn()}
+        onSelectVillage={vi.fn()}
+        orientation="landscape"
+        selectedPrimaryId="vlg-fb354cdb"
+        villages={[village]}
+        {...overrides}
+      />
+    </AppPreferencesProvider>,
   );
 }
 
@@ -133,19 +136,17 @@ describe('MapWorkspace MapLibre integration', () => {
     });
   });
 
-  test('creates the map with the selected style and switches style through map.setStyle', () => {
+  test('creates the map with the globally selected style and binds village layers on load', () => {
+    window.localStorage.setItem('qycq-map-style', 'arcgis_satellite');
+
     renderWorkspace();
 
     const mapInstance = MockMap.instances[0];
     expect(mapInstance).toBeDefined();
-    expect(mapInstance.options.style).toEqual(getMapStyle('gaode'));
+    expect(mapInstance.options.style).toEqual(getMapStyle('arcgis_satellite'));
 
     mapInstance.emit('load');
 
-    fireEvent.click(screen.getByRole('button', { name: '切换底图：高德地图' }));
-    fireEvent.click(screen.getByRole('button', { name: '切换到底图：ArcGIS 卫星图' }));
-
-    expect(mapInstance.setStyle).toHaveBeenCalledWith(getMapStyle('arcgis_satellite'));
     expect(mapInstance.addSource).toHaveBeenCalled();
     expect(mapInstance.addLayer).toHaveBeenCalled();
 
