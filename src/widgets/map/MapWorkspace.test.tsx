@@ -36,6 +36,69 @@ const facets: VillageFacets = {
 };
 
 describe('MapWorkspace', () => {
+  test('falls back to the default registry style when stale runtime selection is stored', () => {
+    window.localStorage.clear();
+    window.localStorage.setItem('qycq-map-style', 'runtime');
+
+    render(
+      <MapWorkspace
+        activeMode="search"
+        facets={facets}
+        filters={{
+          city: '',
+          dialect: '',
+          economy: '',
+          ethnicity: '',
+          q: '',
+          town: '',
+          year: null,
+        }}
+        onFiltersChange={vi.fn()}
+        onModeChange={vi.fn()}
+        onSelectVillage={vi.fn()}
+        orientation="landscape"
+        selectedPrimaryId="vlg-fb354cdb"
+        villages={[village]}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: '切换底图：高德地图' })).toBeInTheDocument();
+  });
+
+  test('renders map source switcher and persists the selected style', () => {
+    window.localStorage.clear();
+
+    render(
+      <MapWorkspace
+        activeMode="search"
+        facets={facets}
+        filters={{
+          city: '',
+          dialect: '',
+          economy: '',
+          ethnicity: '',
+          q: '',
+          town: '',
+          year: null,
+        }}
+        onFiltersChange={vi.fn()}
+        onModeChange={vi.fn()}
+        onSelectVillage={vi.fn()}
+        orientation="landscape"
+        selectedPrimaryId="vlg-fb354cdb"
+        villages={[village]}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: '切换底图：高德地图' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '切换底图：高德地图' }));
+    fireEvent.click(screen.getByRole('button', { name: '切换到底图：ArcGIS 卫星图' }));
+
+    expect(window.localStorage.getItem('qycq-map-style')).toBe('arcgis_satellite');
+    expect(screen.getByRole('button', { name: '切换底图：ArcGIS 卫星图' })).toBeInTheDocument();
+  });
+
   test('renders extended filters and clears them in one action', () => {
     const onFiltersChange = vi.fn();
 
@@ -61,6 +124,8 @@ describe('MapWorkspace', () => {
       />,
     );
 
+    expect(screen.getByRole('heading', { name: '精筛控制台' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '地图主舞台' })).toBeInTheDocument();
     expect(screen.getByLabelText('居民民族')).toHaveValue('汉族');
     expect(screen.getByLabelText('经济情况')).toHaveValue('种植砂糖橘');
 
@@ -100,6 +165,8 @@ describe('MapWorkspace', () => {
       />,
     );
 
+    expect(screen.getByText('在场村庄')).toBeInTheDocument();
+    expect(screen.getByText('叙事详情')).toBeInTheDocument();
     expect(screen.getByText('汉族 / 种植砂糖橘')).toBeInTheDocument();
     expect(screen.getAllByText('居民民族').length).toBeGreaterThan(0);
     expect(screen.getAllByText('汉族').length).toBeGreaterThan(0);

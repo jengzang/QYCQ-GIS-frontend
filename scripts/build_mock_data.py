@@ -218,6 +218,47 @@ def clean_optional_text(value: str | None) -> str | None:
     return normalized or None
 
 
+def unique_tags(tags: list[str]) -> list[str]:
+    return sorted(set(tags))
+
+
+def extract_economy_tags(text: str | None) -> list[str]:
+    normalized = normalize_text(text)
+    if not normalized:
+        return []
+
+    keyword_mapping = {
+        '水果种植': ['果', '柑', '橘', '柑橘', '贡柑', '沙糖橘', '香蕉', '龙眼', '荔枝', '黄皮', '油栗', '青梅', '枣', '梨', '桃', '李', '百香果'],
+        '茶叶种植': ['茶叶', '种茶', '山茶', '茶'],
+        '养殖业': ['养鱼', '养牛', '养猪', '养羊', '养鸭', '养鸡', '养殖', '鱼塘', '养蜂'],
+        '林业经营': ['林木', '林业', '桉树', '杉树', '采松脂', '松脂', '竹木', '木材'],
+        '渔业捕捞': ['捕鱼', '捕捞', '渔'],
+        '建筑营生': ['建筑', '工程'],
+        '运输贸易': ['运输', '货运'],
+        '商业经营': ['经商', '商店', '饭馆', '商业', '贸易', '做生意'],
+        '外出务工': ['务工', '打工'],
+    }
+
+    tags = [tag for tag, keywords in keyword_mapping.items() if any(keyword in normalized for keyword in keywords)]
+    if not tags and any(keyword in normalized for keyword in ['种植', '农业', '农作物', '水稻', '稻谷']):
+        tags.append('农业经营')
+
+    return unique_tags(tags)
+
+
+def extract_ethnicity_tags(text: str | None) -> list[str]:
+    normalized = normalize_text(text)
+    if not normalized:
+        return []
+
+    tags = [
+        tag
+        for tag in ['汉族', '壮族', '瑶族', '客家民系', '广府民系']
+        if tag in normalized
+    ]
+    return unique_tags(tags)
+
+
 def build_search_text(row: dict[str, str]) -> str:
     fields = [
         row.get("归属市", ""),
@@ -262,8 +303,20 @@ def build_facets(records: list[dict[str, Any]]) -> dict[str, Any]:
     cities = sorted({record["city"] for record in records if record["city"]})
     towns = sorted({record["town"] for record in records if record["town"]})
     dialect_groups = sorted({record["dialectGroup"] for record in records})
-    economies = sorted({record["economy"] for record in records if record.get("economy")})
-    ethnicities = sorted({record["ethnicity"] for record in records if record.get("ethnicity")})
+    economies = sorted(
+        {
+            tag
+            for record in records
+            for tag in extract_economy_tags(record.get("economy"))
+        }
+    )
+    ethnicities = sorted(
+        {
+            tag
+            for record in records
+            for tag in extract_ethnicity_tags(record.get("ethnicity"))
+        }
+    )
     sort_years = [
         record["timeline"]["sortYear"]
         for record in records

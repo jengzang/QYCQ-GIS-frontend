@@ -34,17 +34,27 @@ function buildQueryString(params?: VillageQuery): string {
   return queryString ? `?${queryString}` : '';
 }
 
+function normalizeFacetValues(values: unknown): string[] {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return [...new Set(values.map((value) => String(value).trim()).filter(Boolean))].sort((left, right) =>
+    left.localeCompare(right, 'zh-Hans-CN'),
+  );
+}
+
 function normalizeFacets(facets: Partial<VillageFacets>): VillageFacets {
   return {
-    cities: facets.cities ?? [],
-    dialectGroups: facets.dialectGroups ?? [],
-    economies: facets.economies ?? [],
-    ethnicities: facets.ethnicities ?? [],
+    cities: normalizeFacetValues(facets.cities),
+    dialectGroups: normalizeFacetValues(facets.dialectGroups),
+    economies: normalizeFacetValues(facets.economies),
+    ethnicities: normalizeFacetValues(facets.ethnicities),
     timelineRange: {
       max: facets.timelineRange?.max ?? null,
       min: facets.timelineRange?.min ?? null,
     },
-    towns: facets.towns ?? [],
+    towns: normalizeFacetValues(facets.towns),
   };
 }
 
@@ -93,11 +103,8 @@ export function createVillageRepository(runtime: RuntimeConfig): VillageReposito
       return normalizeFacets(await fetchJson<Partial<VillageFacets>>(apiFacetsUrl));
     },
     async list(params) {
-      const records = await fetchJson<VillageApiRecord[]>(
-        `${apiVillagesBaseUrl}${buildQueryString(params)}`,
-      );
+      const records = await fetchJson<VillageApiRecord[]>(`${apiVillagesBaseUrl}${buildQueryString(params)}`);
       return toVillageRecords(records);
     },
   };
 }
-

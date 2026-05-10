@@ -18,12 +18,17 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between text-sm text-[color:var(--color-text-secondary)]">
-        <span>结果列表</span>
-        <span>显示 {visibleVillages.length} / {villages.length}</span>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">在场村庄</p>
+          <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">结果列表保持短摘要，便于快速切村庄。</p>
+        </div>
+        <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/75 px-3 py-1 text-xs font-semibold text-[color:var(--color-text-secondary)]">
+          显示 {visibleVillages.length} / {villages.length}
+        </span>
       </div>
 
-      <div className="max-h-[24rem] space-y-2 overflow-auto pr-1">
+      <div className="max-h-[28rem] space-y-2 overflow-auto pr-1">
         {visibleVillages.map((village) => {
           const isSelected = village.primaryId === selectedPrimaryId;
 
@@ -31,27 +36,27 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
             <button
               key={village.primaryId}
               className={[
-                'w-full rounded-2xl border px-4 py-3 text-left transition',
-                'border-[color:var(--color-border-subtle)] bg-white/85 hover:-translate-y-0.5 hover:bg-white',
+                'w-full rounded-[1.4rem] border px-4 py-4 text-left transition',
+                'border-[color:var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,250,255,0.76))] shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:bg-white',
                 isSelected
-                  ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_16px_30px_rgba(34,116,240,0.24)]'
+                  ? 'border-[color:var(--color-border-strong)] bg-[linear-gradient(135deg,#ffffff,#edf5ff)] shadow-[0_22px_46px_rgba(59,130,246,0.18)]'
                   : '',
               ].join(' ')}
               onClick={() => onSelectVillage(village.primaryId)}
               type="button"
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold">{village.name}</span>
+                <span className="text-sm font-semibold tracking-[-0.02em] text-[color:var(--color-text-primary)]">{village.name}</span>
                 <div className="flex flex-wrap justify-end gap-2">
                   {activeMode === 'timeline' && village.timeline.sortYear === null ? (
-                    <span className="rounded-full border border-current/20 px-2 py-0.5 text-[11px]">时间不详</span>
+                    <span className="rounded-full border border-[color:var(--color-border-subtle)] px-2 py-0.5 text-[11px] text-[color:var(--color-text-secondary)]">时间不详</span>
                   ) : null}
-                  <span className="rounded-full border border-current/20 px-2 py-0.5 text-[11px]">{village.dialectGroup}</span>
+                  <span className="rounded-full bg-[color:var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--color-primary-strong)]">{village.dialectGroup}</span>
                 </div>
               </div>
-              <p className="mt-2 text-sm leading-6 opacity-80">{village.city || '城市未填'} · {village.town || '乡镇未填'}</p>
-              <p className="mt-1 text-xs leading-5 opacity-70">{buildSecondaryMeta(village)}</p>
-              <p className="mt-1 text-xs leading-5 opacity-70">primaryId: {village.primaryId}</p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">{village.city || '城市未填'} · {village.town || '乡镇未填'}</p>
+              <p className="mt-1 text-xs leading-5 text-[color:var(--color-text-secondary)]">{buildSecondaryMeta(village)}</p>
+              <p className="mt-1 text-xs leading-5 text-[color:var(--color-text-tertiary)]">primaryId: {village.primaryId}</p>
             </button>
           );
         })}

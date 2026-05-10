@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type { VillageFacets } from '@/entities/village/api/types';
 import type { MapModeKey } from '@/shared/mappings/nav-mapping';
 import type { OrientationMode } from '@/shared/lib/orientation';
@@ -24,16 +26,31 @@ function hasActiveFilters(filters: MapFilters) {
   );
 }
 
+function FieldShell({ children, title }: { children: ReactNode; title: string }) {
+  return (
+    <label className="grid gap-2 text-sm font-medium text-[color:var(--color-text-primary)]">
+      <span>{title}</span>
+      {children}
+    </label>
+  );
+}
+
+const inputClassName =
+  'rounded-[1.2rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-surface-strong)] px-4 py-3 text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(59,130,246,0.08)]';
+
 export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orientation }: FilterPanelProps) {
   const timelineMin = facets?.timelineRange.min ?? 1400;
   const timelineMax = facets?.timelineRange.max ?? 2000;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-[color:var(--color-text-secondary)]">按地域、民族、经济与关键词组合筛选。</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">精筛控制台</p>
+          <p className="mt-1 text-sm leading-6 text-[color:var(--color-text-secondary)]">按地域、民族、经济与关键词组合筛选，把地图、列表与详情压成一套顺手的检索节奏。</p>
+        </div>
         <button
-          className="rounded-full border border-[color:var(--color-border-subtle)] px-3 py-1.5 text-xs font-semibold text-[color:var(--color-primary-strong)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[color:var(--color-primary-strong)] shadow-[var(--shadow-soft)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!hasActiveFilters(filters)}
           onClick={() =>
             onFiltersChange({
@@ -53,25 +70,19 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
       </div>
 
       <div className="grid gap-3">
-        <label className="grid gap-2 text-sm font-medium">
-          <span>关键词检索</span>
+        <FieldShell title="关键词检索">
           <input
-            className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none transition focus:border-[color:var(--color-primary)]"
+            className={inputClassName}
             onChange={(event) => onFiltersChange({ q: event.currentTarget.value })}
             placeholder="按村名、位置、语言搜索"
             type="search"
             value={filters.q}
           />
-        </label>
+        </FieldShell>
 
         <div className={['grid gap-3', orientation === 'portrait' ? 'grid-cols-1' : 'grid-cols-2'].join(' ')}>
-          <label className="grid gap-2 text-sm font-medium">
-            <span>归属市</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ city: event.currentTarget.value })}
-              value={filters.city}
-            >
+          <FieldShell title="归属市">
+            <select className={inputClassName} onChange={(event) => onFiltersChange({ city: event.currentTarget.value })} value={filters.city}>
               <option value="">全部城市</option>
               {facets?.cities.map((city) => (
                 <option key={city} value={city}>
@@ -79,15 +90,10 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
                 </option>
               ))}
             </select>
-          </label>
+          </FieldShell>
 
-          <label className="grid gap-2 text-sm font-medium">
-            <span>归属镇</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ town: event.currentTarget.value })}
-              value={filters.town}
-            >
+          <FieldShell title="归属镇">
+            <select className={inputClassName} onChange={(event) => onFiltersChange({ town: event.currentTarget.value })} value={filters.town}>
               <option value="">全部乡镇</option>
               {facets?.towns.map((town) => (
                 <option key={town} value={town}>
@@ -95,17 +101,12 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
                 </option>
               ))}
             </select>
-          </label>
+          </FieldShell>
         </div>
 
         <div className={['grid gap-3', orientation === 'portrait' ? 'grid-cols-1' : 'grid-cols-2'].join(' ')}>
-          <label className="grid gap-2 text-sm font-medium">
-            <span>居民民族</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ ethnicity: event.currentTarget.value })}
-              value={filters.ethnicity}
-            >
+          <FieldShell title="居民民族">
+            <select className={inputClassName} onChange={(event) => onFiltersChange({ ethnicity: event.currentTarget.value })} value={filters.ethnicity}>
               <option value="">全部民族</option>
               {facets?.ethnicities.map((ethnicity) => (
                 <option key={ethnicity} value={ethnicity}>
@@ -113,15 +114,10 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
                 </option>
               ))}
             </select>
-          </label>
+          </FieldShell>
 
-          <label className="grid gap-2 text-sm font-medium">
-            <span>经济情况</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ economy: event.currentTarget.value })}
-              value={filters.economy}
-            >
+          <FieldShell title="经济情况">
+            <select className={inputClassName} onChange={(event) => onFiltersChange({ economy: event.currentTarget.value })} value={filters.economy}>
               <option value="">全部经济情况</option>
               {facets?.economies.map((economy) => (
                 <option key={economy} value={economy}>
@@ -129,17 +125,12 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
                 </option>
               ))}
             </select>
-          </label>
+          </FieldShell>
         </div>
 
         {activeMode === 'dialect' ? (
-          <label className="grid gap-2 text-sm font-medium">
-            <span>方言分组</span>
-            <select
-              className="rounded-2xl border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 outline-none"
-              onChange={(event) => onFiltersChange({ dialect: event.currentTarget.value })}
-              value={filters.dialect}
-            >
+          <FieldShell title="方言分组">
+            <select className={inputClassName} onChange={(event) => onFiltersChange({ dialect: event.currentTarget.value })} value={filters.dialect}>
               <option value="">全部方言</option>
               {facets?.dialectGroups.map((dialectGroup) => (
                 <option key={dialectGroup} value={dialectGroup}>
@@ -147,22 +138,23 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
                 </option>
               ))}
             </select>
-          </label>
+          </FieldShell>
         ) : null}
 
         {activeMode === 'timeline' ? (
-          <label className="grid gap-2 text-sm font-medium">
-            <span>时间轴</span>
-            <input
-              className="accent-[color:var(--color-primary)]"
-              max={timelineMax}
-              min={timelineMin}
-              onChange={(event) => onFiltersChange({ year: Number(event.currentTarget.value) })}
-              type="range"
-              value={filters.year ?? timelineMax}
-            />
-            <span className="text-sm text-[color:var(--color-text-secondary)]">已展示至 {filters.year ?? timelineMax} 年</span>
-          </label>
+          <div className="rounded-[1.35rem] border border-[color:var(--color-border-subtle)] bg-white/72 p-4 shadow-[var(--shadow-soft)]">
+            <FieldShell title="时间轴">
+              <input
+                className="accent-[color:var(--color-primary)]"
+                max={timelineMax}
+                min={timelineMin}
+                onChange={(event) => onFiltersChange({ year: Number(event.currentTarget.value) })}
+                type="range"
+                value={filters.year ?? timelineMax}
+              />
+            </FieldShell>
+            <span className="mt-2 block text-sm text-[color:var(--color-text-secondary)]">已展示至 {filters.year ?? timelineMax} 年</span>
+          </div>
         ) : null}
       </div>
     </div>

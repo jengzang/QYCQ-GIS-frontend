@@ -78,6 +78,35 @@ describe('createVillageRepository', () => {
     });
   });
 
+  test('deduplicates and trims facet arrays returned by backend', async () => {
+    fetchMock.mockResolvedValueOnce({
+      json: async () => ({
+        cities: ['肇庆市'],
+        dialectGroups: ['德庆话'],
+        economies: [' 水果种植 ', '水果种植', '外出务工'],
+        ethnicities: ['汉族（客家民系）', '汉族', '汉族'],
+        timelineRange: { max: 1912, min: 1500 },
+        towns: ['高良镇'],
+      }),
+      ok: true,
+    });
+
+    const repository = createVillageRepository(
+      getRuntimeConfig({
+        VITE_DATA_MODE: 'mock',
+      }),
+    );
+
+    await expect(repository.getFacets()).resolves.toEqual({
+      cities: ['肇庆市'],
+      dialectGroups: ['德庆话'],
+      economies: ['水果种植', '外出务工'],
+      ethnicities: ['汉族', '汉族（客家民系）'],
+      timelineRange: { max: 1912, min: 1500 },
+      towns: ['高良镇'],
+    });
+  });
+
   test('builds API detail requests with the primaryId in the path', async () => {
     fetchMock.mockResolvedValueOnce({
       json: async () => ({

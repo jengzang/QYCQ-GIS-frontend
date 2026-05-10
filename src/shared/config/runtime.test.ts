@@ -1,4 +1,6 @@
-import { getRuntimeConfig } from '@/shared/config/runtime';
+import { describe, expect, test } from 'vitest';
+
+import { getRuntimeConfig } from './runtime';
 
 describe('getRuntimeConfig', () => {
   test('defaults to mock mode with normalized env values', () => {
@@ -10,6 +12,7 @@ describe('getRuntimeConfig', () => {
     ).toMatchObject({
       apiBaseUrl: 'http://localhost:8080',
       dataMode: 'mock',
+      mapStyleKey: 'gaode',
       mapStyleUrl: null,
       mode: 'development',
       runtimeProfile: 'mock',
@@ -27,6 +30,7 @@ describe('getRuntimeConfig', () => {
     ).toMatchObject({
       apiBaseUrl: 'https://example.com',
       dataMode: 'api',
+      mapStyleKey: 'runtime',
       mapStyleUrl: 'https://example.com/style.json',
       mode: 'test',
       runtimeProfile: 'local-api',
@@ -43,6 +47,7 @@ describe('getRuntimeConfig', () => {
     ).toMatchObject({
       apiBaseUrl: 'https://example.com',
       dataMode: 'api',
+      mapStyleKey: 'gaode',
       mode: 'serve',
       runtimeProfile: 'remote-api',
     });
@@ -55,8 +60,30 @@ describe('getRuntimeConfig', () => {
       }),
     ).toMatchObject({
       dataMode: 'mock',
+      mapStyleKey: 'gaode',
       mode: 'development',
       runtimeProfile: 'mock',
     });
+  });
+
+  test('falls back to runtime map style when only VITE_MAP_STYLE_URL is provided', () => {
+    const runtimeConfig = getRuntimeConfig({
+      MODE: 'development',
+      VITE_MAP_STYLE_URL: 'https://example.com/runtime-style.json',
+    });
+
+    expect(runtimeConfig.mapStyleKey).toBe('runtime');
+    expect(runtimeConfig.mapStyleUrl).toBe('https://example.com/runtime-style.json');
+  });
+
+  test('prefers explicit VITE_MAP_STYLE_KEY when both key and url are provided', () => {
+    const runtimeConfig = getRuntimeConfig({
+      MODE: 'development',
+      VITE_MAP_STYLE_KEY: 'arcgis_satellite',
+      VITE_MAP_STYLE_URL: 'https://example.com/runtime-style.json',
+    });
+
+    expect(runtimeConfig.mapStyleKey).toBe('arcgis_satellite');
+    expect(runtimeConfig.mapStyleUrl).toBe('https://example.com/runtime-style.json');
   });
 });

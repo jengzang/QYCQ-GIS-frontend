@@ -2,32 +2,37 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg-page: #eef6ff;
-  --color-bg-surface: rgba(255, 255, 255, 0.82);
-  --color-bg-surface-strong: #ffffff;
-  --color-text-primary: #11315f;
-  --color-text-secondary: #466b98;
-  --color-primary: #2274f0;
-  --color-primary-strong: #0d4db5;
-  --color-border-subtle: rgba(34, 116, 240, 0.16);
-  --color-map-dialect-1: #1d4ed8;
-  --color-map-dialect-2: #2563eb;
-  --color-map-dialect-3: #0ea5e9;
-  --color-map-dialect-4: #0284c7;
-  --color-map-dialect-5: #38bdf8;
-  --color-map-dialect-6: #60a5fa;
-  --color-map-dialect-7: #7dd3fc;
-  --color-map-dialect-8: #93c5fd;
+  --color-bg-page: #f4f7fb;
+  --color-bg-page-strong: #eef3f9;
+  --color-bg-surface: rgba(255, 255, 255, 0.74);
+  --color-bg-surface-strong: rgba(255, 255, 255, 0.92);
+  --color-bg-soft: rgba(243, 247, 252, 0.88);
+  --color-text-primary: #17253d;
+  --color-text-secondary: #5c6f8f;
+  --color-text-tertiary: #8292ad;
+  --color-primary: #3b82f6;
+  --color-primary-strong: #1d4ed8;
+  --color-primary-soft: rgba(59, 130, 246, 0.12);
+  --color-accent-warm: rgba(255, 232, 214, 0.8);
+  --color-border-subtle: rgba(143, 166, 201, 0.24);
+  --color-border-strong: rgba(118, 146, 188, 0.36);
+  --shadow-soft: 0 14px 32px rgba(27, 50, 94, 0.08);
+  --shadow-card: 0 24px 56px rgba(33, 53, 85, 0.12);
+  --shadow-stage: 0 32px 90px rgba(31, 55, 91, 0.16);
+  --color-map-dialect-1: #2563eb;
+  --color-map-dialect-2: #3b82f6;
+  --color-map-dialect-3: #38bdf8;
+  --color-map-dialect-4: #0ea5e9;
+  --color-map-dialect-5: #60a5fa;
+  --color-map-dialect-6: #8b5cf6;
+  --color-map-dialect-7: #93c5fd;
+  --color-map-dialect-8: #c4b5fd;
   color: var(--color-text-primary);
   background:
-    radial-gradient(circle at top left, rgba(34, 116, 240, 0.22), transparent 32%),
-    linear-gradient(180deg, #f8fbff 0%, #eef6ff 50%, #e7f2ff 100%);
-  font-family:
-    "Noto Sans SC",
-    "PingFang SC",
-    "Hiragino Sans GB",
-    "Microsoft YaHei",
-    sans-serif;
+    radial-gradient(circle at top left, rgba(132, 177, 255, 0.26), transparent 24%),
+    radial-gradient(circle at top right, rgba(255, 240, 226, 0.84), transparent 28%),
+    linear-gradient(180deg, #fbfdff 0%, #f4f7fb 40%, #edf2f8 100%);
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
 html,
@@ -38,6 +43,7 @@ body,
 
 body {
   margin: 0;
+  background: transparent;
 }
 
 * {
@@ -53,4 +59,8 @@ button,
 input,
 select {
   font: inherit;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.18);
 }

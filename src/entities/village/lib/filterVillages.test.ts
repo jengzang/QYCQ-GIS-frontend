@@ -63,10 +63,10 @@ describe('filterVillages', () => {
     expect(result[0]?.name).toBe('围边村');
   });
 
-  test('supports ethnicity and economy filters in combination with existing conditions', () => {
+  test('supports ethnicity and economy tag filters in combination with existing conditions', () => {
     const result = filterVillages(villages, {
       city: '肇庆市',
-      economy: '种植砂糖橘',
+      economy: '水果种植',
       ethnicity: '汉族',
       q: '平治',
       timelineEnd: 1600,
@@ -79,10 +79,30 @@ describe('filterVillages', () => {
 
   test('does not match blank ethnicity and economy fields by accident', () => {
     const result = filterVillages(villages, {
-      economy: '种植砂糖橘',
+      economy: '水果种植',
       ethnicity: '汉族',
     });
 
     expect(result.map((village) => village.primaryId)).toEqual(['vlg-fb354cdb']);
+  });
+
+  test('matches ethnicity tags against ethnicity descriptions instead of exact equality only', () => {
+    const result = filterVillages(
+      [
+        ...villages,
+        {
+          ...villages[0],
+          economy: '茶叶种植',
+          ethnicity: '汉族（客家民系）',
+          name: '客家村',
+          primaryId: 'vlg-hakka',
+        },
+      ],
+      {
+        ethnicity: '汉族',
+      },
+    );
+
+    expect(result.map((village) => village.primaryId)).toEqual(['vlg-fb354cdb', 'vlg-hakka']);
   });
 });
