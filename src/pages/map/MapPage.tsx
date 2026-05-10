@@ -2,14 +2,14 @@ import { useDeferredValue } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useVillageFacetsQuery, useVillagesQuery } from '@/entities/village/api/hooks';
-import { queryParamMapping } from '@/shared/mappings/query-param-mapping';
-import { mapModeMapping, type MapModeKey } from '@/shared/mappings/nav-mapping';
+import { resolveVillageSelection } from '@/pages/map/selection';
 import { mapPageCopy } from '@/shared/lib/demo-content';
+import { useOrientationMode } from '@/shared/lib/orientation';
+import { mapModeMapping, type MapModeKey } from '@/shared/mappings/nav-mapping';
+import { queryParamMapping } from '@/shared/mappings/query-param-mapping';
 import { PageHero } from '@/shared/ui/PageHero';
 import { SiteShell } from '@/shared/ui/SiteShell';
-import { useOrientationMode } from '@/shared/lib/orientation';
 import { MapWorkspace } from '@/widgets/map/MapWorkspace';
-import { resolveVillageSelection } from '@/pages/map/selection';
 
 const fallbackMode: MapModeKey = 'search';
 
@@ -85,19 +85,14 @@ export function MapPage() {
           eyebrow={mapPageCopy.eyebrow}
           metrics={[
             {
-              hint: '当前展示的是检索、迁徙、方言三模式。',
+              hint: '当前地图浏览方式。',
               label: '当前模式',
               value: mapModeMapping.find((item) => item.key === activeMode)?.label ?? '村庄检索',
             },
             {
-              hint: '当前筛选结果已直接来自 mock 数据。',
+              hint: '符合当前筛选条件的村庄数量。',
               label: '筛选结果',
               value: String(villages.length),
-            },
-            {
-              hint: '只按方向变化页面骨架。',
-              label: '布局',
-              value: orientation === 'portrait' ? '竖屏' : '横屏',
             },
           ]}
           title={mapPageCopy.title}
@@ -118,36 +113,42 @@ export function MapPage() {
           isLoading={isFacetsLoading || isVillagesLoading}
           orientation={orientation}
           onFiltersChange={(updates) =>
-            updateParams({
-              [queryParamMapping.city]: updates.city ?? city,
-              [queryParamMapping.dialect]: updates.dialect ?? dialect,
-              [queryParamMapping.economy]: updates.economy ?? economy,
-              [queryParamMapping.ethnicity]: updates.ethnicity ?? ethnicity,
-              [queryParamMapping.primaryId]:
-                updates.city !== undefined ||
-                updates.dialect !== undefined ||
-                updates.economy !== undefined ||
-                updates.ethnicity !== undefined ||
-                updates.q !== undefined ||
-                updates.town !== undefined ||
-                updates.year !== undefined
-                  ? null
-                  : selectedPrimaryId,
-              [queryParamMapping.q]: updates.q ?? q,
-              [queryParamMapping.town]: updates.town ?? town,
-              [queryParamMapping.year]:
-                updates.year === null || updates.year === undefined ? null : String(updates.year),
-            }, {
-              replace: updates.q !== undefined || updates.year !== undefined,
-            })
+            updateParams(
+              {
+                [queryParamMapping.city]: updates.city ?? city,
+                [queryParamMapping.dialect]: updates.dialect ?? dialect,
+                [queryParamMapping.economy]: updates.economy ?? economy,
+                [queryParamMapping.ethnicity]: updates.ethnicity ?? ethnicity,
+                [queryParamMapping.primaryId]:
+                  updates.city !== undefined ||
+                  updates.dialect !== undefined ||
+                  updates.economy !== undefined ||
+                  updates.ethnicity !== undefined ||
+                  updates.q !== undefined ||
+                  updates.town !== undefined ||
+                  updates.year !== undefined
+                    ? null
+                    : selectedPrimaryId,
+                [queryParamMapping.q]: updates.q ?? q,
+                [queryParamMapping.town]: updates.town ?? town,
+                [queryParamMapping.year]:
+                  updates.year === null || updates.year === undefined ? null : String(updates.year),
+              },
+              {
+                replace: updates.q !== undefined || updates.year !== undefined,
+              },
+            )
           }
           onModeChange={(mode) =>
-            updateParams({
-              [queryParamMapping.dialect]: mode === 'dialect' ? dialect : null,
-              [queryParamMapping.mode]: mode,
-              [queryParamMapping.year]:
-                mode === 'timeline' ? String(timelineYear ?? facets?.timelineRange.max ?? '') : null,
-            }, { replace: false })
+            updateParams(
+              {
+                [queryParamMapping.dialect]: mode === 'dialect' ? dialect : null,
+                [queryParamMapping.mode]: mode,
+                [queryParamMapping.year]:
+                  mode === 'timeline' ? String(timelineYear ?? facets?.timelineRange.max ?? '') : null,
+              },
+              { replace: false },
+            )
           }
           onSelectVillage={(primaryId) =>
             updateParams({ [queryParamMapping.primaryId]: primaryId }, { replace: false })

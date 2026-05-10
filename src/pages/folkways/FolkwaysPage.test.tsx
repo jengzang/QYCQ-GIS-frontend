@@ -77,8 +77,8 @@ describe('FolkwaysPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('专题导览')).toBeInTheDocument();
-    expect(screen.getByText('民俗洞察')).toBeInTheDocument();
+    expect(screen.getByText('栏目导语')).toBeInTheDocument();
+    expect(screen.getByText('民俗内容')).toBeInTheDocument();
     expect(screen.getByText('精选村庄')).toBeInTheDocument();
     expect(screen.getAllByText('民俗村落').length).toBeGreaterThan(0);
     expect(screen.getByText('7')).toBeInTheDocument();
