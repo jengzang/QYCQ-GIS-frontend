@@ -5,6 +5,7 @@ export interface VillageQuery {
   dialectGroup?: string;
   economy?: string;
   ethnicity?: string;
+  fulltext?: boolean;
   q?: string;
   timelineEnd?: number | null;
   town?: string;

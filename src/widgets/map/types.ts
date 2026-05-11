@@ -8,6 +8,7 @@ export interface MapFilters {
   dialect: string;
   economy: string;
   ethnicity: string;
+  fulltext: boolean;
   q: string;
   town: string;
   year: number | null;

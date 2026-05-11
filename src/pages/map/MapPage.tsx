@@ -33,6 +33,7 @@ export function MapPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeMode = resolveMode(searchParams.get(queryParamMapping.mode));
+  const fulltext = searchParams.get(queryParamMapping.fulltext) === '1';
   const q = searchParams.get(queryParamMapping.q) ?? '';
   const city = searchParams.get(queryParamMapping.city) ?? '';
   const town = searchParams.get(queryParamMapping.town) ?? '';
@@ -48,9 +49,10 @@ export function MapPage() {
   const { data: villages = [], isLoading: isVillagesLoading } = useVillagesQuery({
     city: city || undefined,
     dialectGroup: activeMode === 'dialect' && dialect ? dialect : undefined,
-    economy: economy || undefined,
-    ethnicity: ethnicity || undefined,
-    q: deferredQ || undefined,
+    economy: activeMode === 'search' && economy ? economy : undefined,
+    ethnicity: activeMode === 'timeline' ? undefined : ethnicity || undefined,
+    fulltext: activeMode === 'timeline' ? undefined : fulltext,
+    q: activeMode === 'timeline' ? undefined : deferredQ || undefined,
     timelineEnd: activeMode === 'timeline' ? timelineYear : null,
     town: city && town ? town : undefined,
   });
@@ -103,6 +105,14 @@ export function MapPage() {
     }
   }, [availableTownOptions, city, town]);
 
+  useEffect(() => {
+    if (activeMode === 'search' || !economy) {
+      return;
+    }
+
+    updateParams({ [queryParamMapping.economy]: null }, { replace: true });
+  }, [activeMode, economy]);
+
   return (
     <SiteShell>
       <div className="grid gap-4">
@@ -114,6 +124,7 @@ export function MapPage() {
             dialect,
             economy,
             ethnicity,
+            fulltext,
             q,
             town,
             year: timelineYear,
@@ -127,11 +138,14 @@ export function MapPage() {
                 [queryParamMapping.dialect]: updates.dialect ?? dialect,
                 [queryParamMapping.economy]: updates.economy ?? economy,
                 [queryParamMapping.ethnicity]: updates.ethnicity ?? ethnicity,
+                [queryParamMapping.fulltext]:
+                  updates.fulltext === undefined ? (fulltext ? '1' : null) : updates.fulltext ? '1' : null,
                 [queryParamMapping.primaryId]:
                   updates.city !== undefined ||
                   updates.dialect !== undefined ||
                   updates.economy !== undefined ||
                   updates.ethnicity !== undefined ||
+                  updates.fulltext !== undefined ||
                   updates.q !== undefined ||
                   updates.town !== undefined ||
                   updates.year !== undefined
@@ -152,6 +166,7 @@ export function MapPage() {
             updateParams(
               {
                 [queryParamMapping.dialect]: mode === 'dialect' ? dialect : null,
+                [queryParamMapping.economy]: mode === 'search' ? economy : null,
                 [queryParamMapping.mode]: mode,
                 [queryParamMapping.year]:
                   mode === 'timeline' ? String(timelineYear ?? facets?.timelineRange.max ?? '') : null,

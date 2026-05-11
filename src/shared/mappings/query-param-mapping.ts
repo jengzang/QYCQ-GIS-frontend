@@ -3,6 +3,7 @@ export const queryParamMapping = {
   dialect: 'dialect',
   economy: 'economy',
   ethnicity: 'ethnicity',
+  fulltext: 'fulltext',
   mode: 'mode',
   primaryId: 'primaryId',
   q: 'q',

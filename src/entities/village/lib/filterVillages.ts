@@ -5,6 +5,7 @@ export interface VillageQuery {
   dialectGroup?: string;
   economy?: string;
   ethnicity?: string;
+  fulltext?: boolean;
   q?: string;
   timelineEnd?: number | null;
   town?: string;
@@ -45,6 +46,37 @@ function matchesFacetTag(value: string | undefined, selectedTag: string | undefi
   return mappedKeywords.some((keyword) => normalizedValue.includes(keyword.toLocaleLowerCase()));
 }
 
+function matchesTimelineEnd(
+  timeline: VillageRecord['timeline'],
+  timelineEnd: number | null | undefined,
+): boolean {
+  if (timelineEnd === undefined || timelineEnd === null) {
+    return true;
+  }
+
+  const rangeStart = timeline.startYear ?? timeline.sortYear ?? timeline.endYear ?? null;
+  const rangeEnd = timeline.endYear ?? timeline.sortYear ?? timeline.startYear ?? null;
+
+  if (rangeStart === null && rangeEnd === null) {
+    return false;
+  }
+
+  if (rangeStart !== null) {
+    return rangeStart <= timelineEnd;
+  }
+
+  return (rangeEnd ?? timelineEnd) <= timelineEnd;
+}
+
+function matchesKeyword(village: VillageRecord, normalizedQuery: string | undefined, fulltext: boolean | undefined): boolean {
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const candidate = fulltext ? village.searchText : village.name;
+  return includesText(candidate, normalizedQuery);
+}
+
 export function filterVillages(villages: VillageRecord[], query: VillageQuery): VillageRecord[] {
   const normalizedQuery = query.q?.trim().toLocaleLowerCase();
 
@@ -69,16 +101,11 @@ export function filterVillages(villages: VillageRecord[], query: VillageQuery): 
       return false;
     }
 
-    if (
-      query.timelineEnd !== undefined &&
-      query.timelineEnd !== null &&
-      village.timeline.sortYear !== null &&
-      village.timeline.sortYear > query.timelineEnd
-    ) {
+    if (!matchesTimelineEnd(village.timeline, query.timelineEnd)) {
       return false;
     }
 
-    if (normalizedQuery && !includesText(village.searchText, normalizedQuery)) {
+    if (!matchesKeyword(village, normalizedQuery, query.fulltext)) {
       return false;
     }
 

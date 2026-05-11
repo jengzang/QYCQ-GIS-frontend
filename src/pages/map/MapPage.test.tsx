@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 
 const useVillageFacetsQueryMock = vi.fn(() => ({
@@ -33,7 +33,7 @@ const mockVillages = [
       居民民族: '汉族',
     },
     searchText: '肇庆市 高良镇 平治村 汉族 种植砂糖橘',
-    timeline: { rawLabel: '明代', sortYear: 1500 },
+    timeline: { endYear: 1644, precision: 'period', rawLabel: '明代', sortYear: 1368, startYear: 1368 },
     town: '高良镇',
   },
   {
@@ -55,7 +55,7 @@ const mockVillages = [
       居民民族: '壮族',
     },
     searchText: '肇庆市 白土镇 白土村 壮族 外出务工',
-    timeline: { rawLabel: '清代', sortYear: 1700 },
+    timeline: { endYear: 1911, precision: 'period', rawLabel: '清代', sortYear: 1644, startYear: 1644 },
     town: '白土镇',
   },
   {
@@ -77,10 +77,54 @@ const mockVillages = [
       居民民族: '汉族',
     },
     searchText: '云浮市 河口镇 河口村 汉族 外出务工',
-    timeline: { rawLabel: '民国', sortYear: 1912 },
+    timeline: { endYear: 1949, precision: 'period', rawLabel: '民国', sortYear: 1912, startYear: 1912 },
     town: '河口镇',
   },
+  {
+    city: '肇庆市',
+    dialectGroup: '广宁话',
+    economy: '手工业',
+    ethnicity: '汉族',
+    geometry: { coordinates: [112.0, 23.3], type: 'Point' },
+    name: '跨段村',
+    primaryId: 'vlg-range',
+    raw: {
+      位置: '位于白土镇南侧',
+      归属市: '肇庆市',
+      归属镇: '白土镇',
+      村名: '跨段村',
+      村名来源: '因跨涧道路得名',
+      村居民使用语言情况: '通用粤方言广宁话',
+      村经济情况: '手工业',
+      居民民族: '汉族',
+    },
+    searchText: '肇庆市 白土镇 跨段村 汉族 手工业',
+    timeline: { endYear: 1610, precision: 'range', rawLabel: '1590—1610年', sortYear: 1605, startYear: 1590 },
+    town: '白土镇',
+  },
 ];
+
+const matchesTimelineEnd = (
+  timeline: { endYear?: number | null; sortYear: number | null; startYear?: number | null },
+  timelineEnd?: number | null,
+) => {
+  if (timelineEnd === undefined || timelineEnd === null) {
+    return true;
+  }
+
+  const rangeStart = timeline.startYear ?? timeline.sortYear ?? timeline.endYear ?? null;
+  const rangeEnd = timeline.endYear ?? timeline.sortYear ?? timeline.startYear ?? null;
+
+  if (rangeStart === null && rangeEnd === null) {
+    return true;
+  }
+
+  if (rangeStart !== null) {
+    return rangeStart <= timelineEnd;
+  }
+
+  return (rangeEnd ?? timelineEnd) <= timelineEnd;
+};
 
 const useVillagesQueryMock = vi.fn(
   (params?: {
@@ -88,6 +132,7 @@ const useVillagesQueryMock = vi.fn(
     dialectGroup?: string;
     economy?: string;
     ethnicity?: string;
+    fulltext?: boolean;
     q?: string;
     timelineEnd?: number | null;
     town?: string;
@@ -99,8 +144,11 @@ const useVillagesQueryMock = vi.fn(
       if (params?.town && village.town !== params.town) {
         return false;
       }
-      if (params?.q && !village.searchText.includes(params.q)) {
-        return false;
+      if (params?.q) {
+        const candidate = params.fulltext ? village.searchText : village.name;
+        if (!candidate.includes(params.q)) {
+          return false;
+        }
       }
       if (params?.ethnicity && village.ethnicity !== params.ethnicity) {
         return false;
@@ -111,12 +159,7 @@ const useVillagesQueryMock = vi.fn(
       if (params?.dialectGroup && village.dialectGroup !== params.dialectGroup) {
         return false;
       }
-      if (
-        params?.timelineEnd !== null &&
-        params?.timelineEnd !== undefined &&
-        village.timeline.sortYear !== null &&
-        village.timeline.sortYear > params.timelineEnd
-      ) {
+      if (!matchesTimelineEnd(village.timeline, params?.timelineEnd)) {
         return false;
       }
 
@@ -188,6 +231,9 @@ describe('MapPage layout', () => {
     render(<App />);
 
     expect(screen.getByRole('tab', { name: '村庄检索' })).toBeInTheDocument();
+    expect(screen.getByTestId('map-mode-strip')).toBeInTheDocument();
+    expect(screen.getByText('地图模式')).toBeInTheDocument();
+    expect(screen.getByText('按地区、民族、经济与关键词查找村庄，再从列表或地图进入详情。')).toBeInTheDocument();
     expect(screen.getByTestId('map-portrait-layout')).toBeInTheDocument();
     expect(screen.getByTestId('map-detail-panel')).toBeInTheDocument();
     expect(screen.queryByText('运行状态')).not.toBeInTheDocument();
@@ -214,34 +260,138 @@ describe('MapPage layout', () => {
 
     expect(window.location.hash).toContain('mode=dialect');
     expect(pushStateSpy).toHaveBeenCalled();
+    expect(screen.getByText('按方言分组观察村庄空间分布，快速对比不同方言片区。')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '方言分布' })).toHaveAttribute('data-state', 'active');
+    expect(screen.getByRole('tab', { name: '村庄检索' })).toHaveAttribute('data-state', 'inactive');
+    expect(screen.getByLabelText('居民民族')).toBeInTheDocument();
+    expect(screen.getByLabelText('方言分组')).toBeInTheDocument();
+    expect(screen.queryByLabelText('经济情况')).not.toBeInTheDocument();
   });
 
-  test('pushes discrete filter changes but replaces free-text search history', () => {
-    setOrientation(true);
-    const pushStateSpy = vi.spyOn(window.history, 'pushState');
-    const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
+  test('pushes discrete filter changes but debounces free-text search before replacing history', () => {
+    vi.useFakeTimers();
+    try {
+      setOrientation(true);
+      const pushStateSpy = vi.spyOn(window.history, 'pushState');
+      const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
 
-    render(<App />);
-    pushStateSpy.mockClear();
-    replaceStateSpy.mockClear();
+      render(<App />);
+      pushStateSpy.mockClear();
+      replaceStateSpy.mockClear();
 
-    fireEvent.change(screen.getByLabelText('归属市'), {
-      target: { value: '肇庆市' },
-    });
+      fireEvent.change(screen.getByLabelText('归属市'), {
+        target: { value: '肇庆市' },
+      });
 
-    expect(window.location.hash).toContain('city=%E8%82%87%E5%BA%86%E5%B8%82');
-    expect(pushStateSpy).toHaveBeenCalled();
+      expect(window.location.hash).toContain('city=%E8%82%87%E5%BA%86%E5%B8%82');
+      expect(pushStateSpy).toHaveBeenCalled();
 
-    pushStateSpy.mockClear();
-    replaceStateSpy.mockClear();
+      pushStateSpy.mockClear();
+      replaceStateSpy.mockClear();
+      useVillagesQueryMock.mockClear();
 
-    fireEvent.change(screen.getByLabelText('关键词检索'), {
-      target: { value: '平治村' },
-    });
+      fireEvent.change(screen.getByLabelText('关键词检索'), {
+        target: { value: '平治村' },
+      });
 
-    expect(window.location.hash).toContain('q=%E5%B9%B3%E6%B2%BB%E6%9D%91');
-    expect(replaceStateSpy).toHaveBeenCalled();
-    expect(pushStateSpy).not.toHaveBeenCalled();
+      expect(window.location.hash).not.toContain('q=%E5%B9%B3%E6%B2%BB%E6%9D%91');
+      expect(replaceStateSpy).not.toHaveBeenCalled();
+      expect(useVillagesQueryMock).not.toHaveBeenCalledWith(
+        expect.objectContaining({ q: '平治村' }),
+      );
+
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(window.location.hash).toContain('q=%E5%B9%B3%E6%B2%BB%E6%9D%91');
+      expect(replaceStateSpy).toHaveBeenCalled();
+      expect(pushStateSpy).not.toHaveBeenCalled();
+      expect(useVillagesQueryMock).toHaveBeenCalledWith(
+        expect.objectContaining({ fulltext: false, q: '平治村' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('defaults keyword search to village name and can opt into fulltext mode', () => {
+    vi.useFakeTimers();
+    try {
+      setOrientation(true);
+
+      render(<App />);
+
+      expect(screen.getByPlaceholderText('仅按村名搜索')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /平治村/i })).toBeInTheDocument();
+
+      fireEvent.change(screen.getByLabelText('关键词检索'), {
+        target: { value: '高良镇' },
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(screen.queryByRole('button', { name: /平治村/i })).not.toBeInTheDocument();
+      expect(useVillagesQueryMock).toHaveBeenCalledWith(
+        expect.objectContaining({ fulltext: false, q: '高良镇' }),
+      );
+
+      fireEvent.click(screen.getByLabelText('全文搜索'));
+
+      expect(window.location.hash).toContain('fulltext=1');
+      expect(screen.getByPlaceholderText('按村名、位置、语言搜索')).toBeInTheDocument();
+      expect(useVillagesQueryMock).toHaveBeenCalledWith(
+        expect.objectContaining({ fulltext: true, q: '高良镇' }),
+      );
+      expect(screen.getByRole('button', { name: /平治村/i })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('does not commit free-text search during IME composition and only searches after composition ends', () => {
+    vi.useFakeTimers();
+    try {
+      setOrientation(true);
+
+      render(<App />);
+      const keywordInput = screen.getByLabelText('关键词检索');
+      useVillagesQueryMock.mockClear();
+
+      fireEvent.compositionStart(keywordInput);
+      fireEvent.change(keywordInput, {
+        target: { value: 'p' },
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(400);
+      });
+
+      expect(window.location.hash).not.toContain('q=');
+      expect(useVillagesQueryMock).not.toHaveBeenCalledWith(
+        expect.objectContaining({ q: 'p' }),
+      );
+
+      fireEvent.compositionEnd(keywordInput, {
+        data: '平',
+        target: { value: '平' },
+      });
+
+      expect(window.location.hash).not.toContain('q=%E5%B9%B3');
+
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(window.location.hash).toContain('q=%E5%B9%B3');
+      expect(useVillagesQueryMock).toHaveBeenCalledWith(
+        expect.objectContaining({ q: '平' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test('disables town select until a city is chosen, then narrows town options to that city', () => {
@@ -289,18 +439,42 @@ describe('MapPage layout', () => {
     expect(screen.getByLabelText('关键词检索')).toHaveValue('平治村');
     expect(screen.getByLabelText('居民民族')).toHaveValue('汉族');
     expect(screen.getByLabelText('经济情况')).toHaveValue('种植砂糖橘');
-    expect(useVillagesQueryMock).toHaveBeenCalledWith({
-      city: '肇庆市',
-      dialectGroup: undefined,
-      economy: '种植砂糖橘',
-      ethnicity: '汉族',
-      q: '平治村',
-      timelineEnd: null,
-      town: '高良镇',
-    });
-    expect(useVillagesQueryMock).toHaveBeenCalledWith({
-      city: '肇庆市',
-    });
+    expect(useVillagesQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: '肇庆市',
+        dialectGroup: undefined,
+        economy: '种植砂糖橘',
+        ethnicity: '汉族',
+        fulltext: false,
+        q: '平治村',
+        timelineEnd: null,
+        town: '高良镇',
+      }),
+    );
+    expect(useVillagesQueryMock).toHaveBeenCalledWith(expect.objectContaining({ city: '肇庆市' }));
+  });
+
+  test('removes economy filter from dialect mode URL and query', () => {
+    setOrientation(true);
+    setHashRoute('/map?mode=dialect&economy=%E7%A7%8D%E6%A4%8D%E7%A0%82%E7%B3%96%E6%A9%98');
+
+    render(<App />);
+
+    expect(screen.queryByLabelText('经济情况')).not.toBeInTheDocument();
+    expect(window.location.hash).toContain('mode=dialect');
+    expect(window.location.hash).not.toContain('economy=');
+    expect(useVillagesQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: undefined,
+        dialectGroup: undefined,
+        economy: undefined,
+        ethnicity: undefined,
+        fulltext: false,
+        q: undefined,
+        timelineEnd: null,
+        town: undefined,
+      }),
+    );
   });
 
   test('clears primaryId when ethnicity filter changes', () => {
@@ -318,6 +492,59 @@ describe('MapPage layout', () => {
     expect(window.location.hash).toContain('ethnicity=%E6%B1%89%E6%97%8F');
     expect(window.location.hash).not.toContain('primaryId=');
     expect(pushStateSpy).toHaveBeenCalled();
+  });
+
+  test('timeline mode ignores persisted keyword/fulltext/ethnicity filters and always targets the full village set under the cutoff', () => {
+    setOrientation(true);
+    setHashRoute('/map?mode=timeline&year=1600&q=%E9%AB%98%E8%89%AF%E9%95%87&fulltext=1&ethnicity=%E6%B1%89%E6%97%8F');
+
+    render(<App />);
+
+    expect(screen.queryByLabelText('关键词检索')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('全文搜索')).not.toBeInTheDocument();
+    expect(useVillagesQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: undefined,
+        dialectGroup: undefined,
+        economy: undefined,
+        ethnicity: undefined,
+        fulltext: undefined,
+        q: undefined,
+        timelineEnd: 1600,
+        town: undefined,
+      }),
+    );
+    expect(screen.getByRole('button', { name: /平治村/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /跨段村/i })).toBeInTheDocument();
+  });
+
+  test('passes timeline mode cutoff into villages query while preserving range-based village matches', () => {
+    setOrientation(true);
+    setHashRoute('/map?mode=timeline&year=1600');
+
+    render(<App />);
+
+    expect(screen.queryByLabelText('居民民族')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('经济情况')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('关键词检索')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('全文搜索')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('源流迁徙时间轴')).toBeInTheDocument();
+    expect(screen.getByText('已展示至 1600 年')).toBeInTheDocument();
+    expect(useVillagesQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: undefined,
+        dialectGroup: undefined,
+        economy: undefined,
+        ethnicity: undefined,
+        fulltext: undefined,
+        q: undefined,
+        timelineEnd: 1600,
+        town: undefined,
+      }),
+    );
+    expect(screen.getByRole('button', { name: /平治村/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /跨段村/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /白土村/i })).not.toBeInTheDocument();
   });
 
   test('settings page is the only place that changes global map style and theme', () => {
