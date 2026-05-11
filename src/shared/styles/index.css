@@ -13,6 +13,7 @@
   --color-primary: #557a95;
   --color-primary-strong: #38556d;
   --color-primary-soft: rgba(85, 122, 149, 0.12);
+  --color-primary-contrast: #f7fbff;
   --color-accent-warm: rgba(221, 204, 183, 0.56);
   --color-border-subtle: rgba(143, 151, 148, 0.22);
   --color-border-strong: rgba(120, 131, 132, 0.34);
@@ -47,6 +48,7 @@
   --color-primary: #7da7cc;
   --color-primary-strong: #a9c7e3;
   --color-primary-soft: rgba(125, 167, 204, 0.18);
+  --color-primary-contrast: #0d1520;
   --color-accent-warm: rgba(109, 95, 80, 0.28);
   --color-border-subtle: rgba(145, 167, 189, 0.18);
   --color-border-strong: rgba(163, 190, 216, 0.32);
@@ -131,6 +133,3 @@ select {
   background-color: rgba(26, 39, 57, 0.96) !important;
 }
 
-:root[data-theme='dark'] .text-white {
-  color: #0d1520 !important;
-}

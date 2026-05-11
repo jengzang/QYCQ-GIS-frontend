@@ -1,5 +1,5 @@
 import maplibregl, { type GeoJSONSource, type Map } from 'maplibre-gl';
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import type { Feature, FeatureCollection, Point } from 'geojson';
@@ -10,7 +10,6 @@ import { runtimeConfig } from '@/shared/config/runtime';
 import {
   type MapStyleKey,
   getMapStyle,
-  getMapStyleLabel,
 } from '@/shared/lib/map-style';
 import { dialectLegendMapping } from '@/shared/mappings/dialect-mapping';
 import { mapLayerMapping } from '@/shared/mappings/map-layer-mapping';
@@ -251,8 +250,7 @@ function MapPreviewCanvas({
 export function OverviewMapSection({ villages }: { villages: VillageRecord[] }) {
   const [activeMode, setActiveMode] = useState<MapModeKey>('search');
   const { mapStyleKey } = useAppPreferences();
-  const quickVillages = useMemo(() => villages.slice(0, 6), [villages]);
-  const [selectedPrimaryId, setSelectedPrimaryId] = useState(() => quickVillages[0]?.primaryId ?? villages[0]?.primaryId ?? '');
+  const [selectedPrimaryId, setSelectedPrimaryId] = useState(() => villages[0]?.primaryId ?? '');
 
   useEffect(() => {
     if (!selectedPrimaryId && villages[0]?.primaryId) {
@@ -265,12 +263,9 @@ export function OverviewMapSection({ villages }: { villages: VillageRecord[] }) 
     }
   }, [selectedPrimaryId, villages]);
 
-  const selectedVillage = villages.find((village) => village.primaryId === selectedPrimaryId) ?? villages[0] ?? null;
-
   return (
     <SurfaceCard
       title="地图总览"
-      description="首页直接保留可交互地图；底图由设置页统一控制，进入地图页后再做更完整的筛选、列表与详情联动。"
     >
       <div className="space-y-4">
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="首页地图模式">
@@ -294,80 +289,30 @@ export function OverviewMapSection({ villages }: { villages: VillageRecord[] }) 
             );
           })}
         </div>
+        <div className="space-y-4">
+          {activeMode === 'dialect' ? <DialectLegend /> : null}
+          <MapPreviewCanvas
+            activeMode={activeMode}
+            mapStyleKey={mapStyleKey}
+            onSelectVillage={setSelectedPrimaryId}
+            selectedPrimaryId={selectedPrimaryId}
+            villages={villages}
+          />
 
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
-          <div className="space-y-4">
-            {activeMode === 'dialect' ? <DialectLegend /> : null}
-            <MapPreviewCanvas
-              activeMode={activeMode}
-              mapStyleKey={mapStyleKey}
-              onSelectVillage={setSelectedPrimaryId}
-              selectedPrimaryId={selectedPrimaryId}
-              villages={villages}
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-[1.4rem] border border-[color:var(--color-border-subtle)] bg-white/88 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-tertiary)]">当前底图</p>
-              <p className="mt-2 text-lg font-semibold text-[color:var(--color-text-primary)]">{getMapStyleLabel(mapStyleKey)}</p>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">
-                当前底图由设置页统一控制，首页与地图页会复用同一套底图来源。
-              </p>
-              <Link
-                className="mt-4 inline-flex rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-soft)] px-4 py-2 text-sm font-medium text-[color:var(--color-primary-strong)] transition hover:bg-white"
-                to={routeMapping.settings}
-              >
-                前往设置修改
-              </Link>
-            </div>
-
-            <div className="rounded-[1.4rem] border border-[color:var(--color-border-subtle)] bg-white/88 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-tertiary)]">当前选中村庄</p>
-              {selectedVillage ? (
-                <>
-                  <p className="mt-2 text-lg font-semibold text-[color:var(--color-text-primary)]">{selectedVillage.name}</p>
-                  <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">
-                    {selectedVillage.city || '城市未填'} · {selectedVillage.town || '乡镇未填'}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">
-                    {selectedVillage.raw.村名来源 || selectedVillage.raw.位置 || '进入地图页查看更多信息'}
-                  </p>
-                  <Link
-                    className="mt-4 inline-flex rounded-full bg-[color:var(--color-primary-strong)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-92"
-                    to={`${routeMapping.map}?${queryParamMapping.mode}=search&${queryParamMapping.primaryId}=${selectedVillage.primaryId}`}
-                  >
-                    进入完整地图
-                  </Link>
-                </>
-              ) : (
-                <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">暂无可显示村庄数据。</p>
-              )}
-            </div>
-
-            <div className="rounded-[1.4rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-soft)] p-4">
-              <p className="text-sm font-semibold text-[color:var(--color-text-primary)]">快速定位</p>
-              <div className="mt-3 grid gap-2">
-                {quickVillages.map((village) => (
-                  <button
-                    key={village.primaryId}
-                    className={[
-                      'rounded-[1rem] border px-3 py-3 text-left text-sm transition',
-                      village.primaryId === selectedPrimaryId
-                        ? 'border-[color:var(--color-border-strong)] bg-white text-[color:var(--color-primary-strong)]'
-                        : 'border-[color:var(--color-border-subtle)] bg-white/78 text-[color:var(--color-text-primary)] hover:bg-white',
-                    ].join(' ')}
-                    onClick={() => setSelectedPrimaryId(village.primaryId)}
-                    type="button"
-                  >
-                    <span className="block font-semibold">{village.name}</span>
-                    <span className="mt-1 block text-xs leading-5 text-[color:var(--color-text-secondary)]">
-                      {village.city || '城市未填'} · {village.town || '乡镇未填'}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="flex flex-col gap-3 rounded-[1.4rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-soft)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm leading-6 text-[color:var(--color-text-secondary)]">
+              地图底图与明暗主题可在“设置”页统一调整；点击地图中的村庄后，可进入完整地图继续查看。
+            </p>
+            <Link
+              className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-primary-strong)] px-5 py-3 text-sm font-medium text-white transition hover:opacity-92"
+              to={
+                selectedPrimaryId
+                  ? `${routeMapping.map}?${queryParamMapping.mode}=search&${queryParamMapping.primaryId}=${selectedPrimaryId}`
+                  : routeMapping.map
+              }
+            >
+              进入完整地图
+            </Link>
           </div>
         </div>
       </div>

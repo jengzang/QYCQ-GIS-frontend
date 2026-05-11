@@ -24,6 +24,17 @@ export interface FolkwayAnalyzedVillage {
   town?: string;
 }
 
+export interface FolkwayAnalysisResult {
+  leadingKeywords: string[];
+  theme: FolkwayThemeDefinition;
+  villages: FolkwayAnalyzedVillage[];
+}
+
+export interface FolkwayAnalysisIndex {
+  byTheme: Record<FolkwayThemeKey, FolkwayAnalysisResult>;
+  themes: FolkwayThemeItem[];
+}
+
 export const folkwayThemeDefinitions: FolkwayThemeDefinition[] = [
   {
     description: '查看祭祀、年节、庙会与仪式性活动。',
@@ -87,11 +98,87 @@ export function buildFolkwayExcerpt(text: string, keywords: string[]) {
   return sentences[0] ?? text;
 }
 
+function createEmptyAnalysisResult(theme: FolkwayThemeDefinition): FolkwayAnalysisResult {
+  return {
+    leadingKeywords: [],
+    theme,
+    villages: [],
+  };
+}
+
+function sortAnalyzedVillages(villages: FolkwayAnalyzedVillage[]) {
+  villages.sort((left, right) => right.matchedKeywords.length - left.matchedKeywords.length || left.name.localeCompare(right.name, 'zh-Hans-CN'));
+}
+
+function getLeadingKeywords(villages: FolkwayAnalyzedVillage[]) {
+  const keywordCounter = new Map<string, number>();
+  villages.forEach((village) => {
+    village.matchedKeywords.forEach((keyword) => {
+      keywordCounter.set(keyword, (keywordCounter.get(keyword) ?? 0) + 1);
+    });
+  });
+
+  return [...keywordCounter.entries()]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'zh-Hans-CN'))
+    .slice(0, 3)
+    .map(([keyword]) => keyword);
+}
+
+export function buildFolkwayAnalysisIndex(villages: VillageRecord[], folkwayField: keyof VillageRecord['raw']): FolkwayAnalysisIndex {
+  const byTheme = Object.fromEntries(
+    folkwayThemeDefinitions.map((theme) => [theme.key, createEmptyAnalysisResult(theme)]),
+  ) as Record<FolkwayThemeKey, FolkwayAnalysisResult>;
+
+  villages.forEach((village) => {
+    const sourceText = village.raw[folkwayField] ?? '';
+    if (!sourceText) {
+      return;
+    }
+
+    const excerptByKeywords = new Map<string, string>();
+
+    folkwayThemeDefinitions.forEach((theme) => {
+      const matchedKeywords = getMatchedThemeKeywords(sourceText, theme.keywords);
+      if (!matchedKeywords.length) {
+        return;
+      }
+
+      const excerptKey = matchedKeywords.join('\u0000');
+      const cachedExcerpt = excerptByKeywords.get(excerptKey);
+      const excerpt = cachedExcerpt ?? buildFolkwayExcerpt(sourceText, matchedKeywords);
+      if (!cachedExcerpt) {
+        excerptByKeywords.set(excerptKey, excerpt);
+      }
+
+      byTheme[theme.key].villages.push({
+        city: village.city,
+        excerpt,
+        matchedKeywords,
+        name: village.name,
+        primaryId: village.primaryId,
+        themeKey: theme.key,
+        town: village.town,
+      });
+    });
+  });
+
+  folkwayThemeDefinitions.forEach((theme) => {
+    const result = byTheme[theme.key];
+    sortAnalyzedVillages(result.villages);
+    result.leadingKeywords = getLeadingKeywords(result.villages);
+  });
+
+  return {
+    byTheme,
+    themes: folkwayThemeDefinitions.map<FolkwayThemeItem>((theme) => ({
+      ...theme,
+      count: byTheme[theme.key].villages.length,
+    })),
+  };
+}
+
 export function buildFolkwayThemes(villages: VillageRecord[], folkwayField: keyof VillageRecord['raw']) {
-  return folkwayThemeDefinitions.map<FolkwayThemeItem>((theme) => ({
-    ...theme,
-    count: villages.filter((village) => getMatchedThemeKeywords(village.raw[folkwayField] ?? '', theme.keywords).length > 0).length,
-  }));
+  return buildFolkwayAnalysisIndex(villages, folkwayField).themes;
 }
 
 export function getDefaultFolkwayTheme(themes: FolkwayThemeItem[]) {
@@ -103,42 +190,5 @@ export function analyzeFolkwayVillages(
   folkwayField: keyof VillageRecord['raw'],
   themeKey: FolkwayThemeKey,
 ) {
-  const theme = folkwayThemeDefinitions.find((item) => item.key === themeKey) ?? folkwayThemeDefinitions[0];
-
-  const matchedVillages = villages
-    .map<FolkwayAnalyzedVillage | null>((village) => {
-      const sourceText = village.raw[folkwayField] ?? '';
-      const matchedKeywords = getMatchedThemeKeywords(sourceText, theme.keywords);
-      if (!matchedKeywords.length) {
-        return null;
-      }
-
-      return {
-        city: village.city,
-        excerpt: buildFolkwayExcerpt(sourceText, matchedKeywords),
-        matchedKeywords,
-        name: village.name,
-        primaryId: village.primaryId,
-        themeKey,
-        town: village.town,
-      };
-    })
-    .filter((village): village is FolkwayAnalyzedVillage => Boolean(village))
-    .sort((left, right) => right.matchedKeywords.length - left.matchedKeywords.length || left.name.localeCompare(right.name, 'zh-Hans-CN'));
-
-  const keywordCounter = new Map<string, number>();
-  matchedVillages.forEach((village) => {
-    village.matchedKeywords.forEach((keyword) => {
-      keywordCounter.set(keyword, (keywordCounter.get(keyword) ?? 0) + 1);
-    });
-  });
-
-  return {
-    leadingKeywords: [...keywordCounter.entries()]
-      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'zh-Hans-CN'))
-      .slice(0, 3)
-      .map(([keyword]) => keyword),
-    theme,
-    villages: matchedVillages,
-  };
+  return buildFolkwayAnalysisIndex(villages, folkwayField).byTheme[themeKey];
 }

@@ -57,7 +57,7 @@ function buildDetailSections(village: VillageRecord) {
 export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, selectedVillage }: DetailPanelProps) {
   if (!selectedVillage) {
     return (
-      <SurfaceCard title="村庄详情" description="选中一个村庄后，这里会展示摘要、叙事内容和阅读提示。" eyebrow="下部详情区">
+      <SurfaceCard title="村庄详情">
         <p className="text-sm leading-6 text-[color:var(--color-text-secondary)]">
           {hasInvalidSelection
             ? '当前 URL 中的村庄选择已失效，请重新从列表或地图中选择。'
@@ -74,7 +74,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
   const timelineLabel = getTimelineDisplayLabel(selectedVillage.timeline);
 
   return (
-    <SurfaceCard title="村庄详情" description={`${selectedVillage.city || '城市未填'} · ${selectedVillage.town || '乡镇未填'}`} eyebrow="下部详情区">
+    <SurfaceCard title="村庄详情" description={`${selectedVillage.city || '城市未填'} · ${selectedVillage.town || '乡镇未填'}`} >
       <div className="space-y-5">
         <div className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-white/78 p-4">
           <div>

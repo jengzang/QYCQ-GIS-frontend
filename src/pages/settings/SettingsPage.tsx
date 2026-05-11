@@ -64,9 +64,9 @@ export function SettingsPage() {
   return (
     <SiteShell>
       <div className="grid gap-4">
-        <SurfaceCard title="地图底图" description="只允许在设置页统一切换；改动后首页与地图页会一起生效。">
+        <SurfaceCard title="地图底图" >
           <SettingsSelect
-            description="整个站点的地图底图只认这一处设置，避免首页、地图页出现不同入口和不同状态。"
+            description="统一更改网站地图所用的底图"
             label="底图方案"
             onChange={(value) => setMapStyleKey(value as Parameters<typeof setMapStyleKey>[0])}
             options={mapStyleOptions.map((option) => ({ label: option.label, value: option.key }))}
@@ -74,9 +74,9 @@ export function SettingsPage() {
           />
         </SurfaceCard>
 
-        <SurfaceCard title="界面主题" description="只支持日间 / 夜间两种模式，切换后整个页面壳子立即更新。">
+        <SurfaceCard title="界面主题" >
           <SettingsSelect
-            description="用于切换站点整体明暗风格，不改变地图业务数据，只改变界面外观。"
+            description="切换网站整体明暗风格"
             label="主题模式"
             onChange={(value) => setThemeMode(value as ThemeMode)}
             options={themeOptions.map((option) => ({ label: option.label, value: option.key }))}

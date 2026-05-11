@@ -34,6 +34,12 @@ const mapBounds: [[number, number], [number, number]] = [
   [117.3, 25.6],
 ];
 
+const mapModeDescriptionMapping: Record<MapModeKey, string> = {
+  dialect: '按方言分组观察村庄空间分布，快速对比不同方言片区。',
+  search: '按地区、民族、经济与关键词查找村庄，再从列表或地图进入详情。',
+  timeline: '按时间线查看村庄形成与迁徙脉络，理解空间分布的先后变化。',
+};
+
 function getSelectedVillage(villages: VillageRecord[], selectedPrimaryId: string) {
   return villages.find((village) => village.primaryId === selectedPrimaryId) ?? null;
 }
@@ -138,30 +144,42 @@ function applyVillageStyle(map: Map, activeMode: MapModeKey, selectedPrimaryId: 
 }
 
 function ModeTabs({ activeMode, onModeChange }: Pick<MapWorkspaceProps, 'activeMode' | 'onModeChange'>) {
-  return (
-    <div aria-label="村庄地图模式" className="flex flex-wrap gap-2" role="tablist">
-      {mapModeMapping.map((mode) => {
-        const isActive = activeMode === mode.key;
+  const activeModeMeta = mapModeMapping.find((mode) => mode.key === activeMode) ?? mapModeMapping[0];
 
-        return (
-          <button
-            key={mode.key}
-            aria-selected={isActive}
-            className={[
-              'rounded-full border px-4 py-2 text-sm font-semibold transition',
-              'border-[color:var(--color-border-subtle)] bg-white/82 text-[color:var(--color-text-primary)] shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:bg-white',
-              isActive
-                ? 'border-[color:var(--color-border-strong)] bg-[linear-gradient(135deg,#ffffff,#eef5ff)] text-[color:var(--color-primary-strong)] shadow-[0_18px_36px_rgba(59,130,246,0.16)]'
-                : '',
-            ].join(' ')}
-            onClick={() => onModeChange(mode.key)}
-            role="tab"
-            type="button"
-          >
-            {mode.label}
-          </button>
-        );
-      })}
+  return (
+    <div className="space-y-3" data-testid="map-mode-strip">
+      <div className="flex flex-col gap-3 border-b border-[color:var(--color-border-subtle)] pb-3 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-sm font-semibold tracking-[0.08em] text-[color:var(--color-text-primary)]">地图模式</h2>
+          <p className="text-sm leading-6 text-[color:var(--color-text-secondary)]">{mapModeDescriptionMapping[activeModeMeta.key]}</p>
+        </div>
+
+        <div aria-label="村庄地图模式" className="flex flex-wrap gap-2" role="tablist">
+          {mapModeMapping.map((mode) => {
+            const isActive = activeMode === mode.key;
+
+            return (
+              <button
+                key={mode.key}
+                aria-selected={isActive}
+                className={[
+                  'rounded-full border px-4 py-2 text-sm font-semibold transition duration-200',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2',
+                  isActive
+                    ? 'border-[color:rgba(59,130,246,0.28)] bg-[color:rgba(231,242,255,0.92)] text-[color:var(--color-primary-strong)] shadow-[0_8px_20px_rgba(59,130,246,0.12)]'
+                    : 'border-[color:var(--color-border-subtle)] bg-white/70 text-[color:var(--color-text-secondary)] hover:bg-white hover:text-[color:var(--color-text-primary)]',
+                ].join(' ')}
+                data-state={isActive ? 'active' : 'inactive'}
+                onClick={() => onModeChange(mode.key)}
+                role="tab"
+                type="button"
+              >
+                {mode.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -314,7 +332,6 @@ export function MapWorkspace({
   const { mapStyleKey } = useAppPreferences();
   const selectedVillage = getSelectedVillage(villages, selectedPrimaryId);
   const canClearFilters = hasActiveFilters(filters);
-
   const clearFiltersButton = (
     <button
       aria-label="一键清空筛选"
@@ -340,7 +357,6 @@ export function MapWorkspace({
   const filterContent = useMemo(
     () => (
       <div className="flex h-full min-h-0 flex-col space-y-4">
-        <ModeTabs activeMode={activeMode} onModeChange={onModeChange} />
         <FilterPanel
           activeMode={activeMode}
           facets={facets}
@@ -387,6 +403,8 @@ export function MapWorkspace({
   if (orientation === 'portrait') {
     return (
       <div className="grid gap-4" data-testid="map-portrait-layout">
+        <ModeTabs activeMode={activeMode} onModeChange={onModeChange} />
+
         <SurfaceCard
           description="先切模式，再筛选，再从结果列表或地图点位进入详情。"
           headerActions={clearFiltersButton}
@@ -406,9 +424,13 @@ export function MapWorkspace({
 
   return (
     <div
-      className="grid gap-4 [grid-template-columns:22rem_minmax(0,1fr)] [grid-template-rows:minmax(0,52rem)_auto]"
+      className="grid gap-4 [grid-template-columns:22rem_minmax(0,1fr)] [grid-template-rows:auto_minmax(0,80dvh)_auto]"
       data-testid="map-landscape-layout"
     >
+      <div className="col-span-2">
+        <ModeTabs activeMode={activeMode} onModeChange={onModeChange} />
+      </div>
+
       <aside className="h-full min-h-0">
         <SurfaceCard
           className="h-full overflow-hidden"

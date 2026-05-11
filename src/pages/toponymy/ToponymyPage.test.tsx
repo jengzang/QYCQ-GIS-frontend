@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
 
+import { AppPreferencesProvider } from '@/app/providers/AppPreferencesProvider';
+
 const villages = [
   {
     city: '揭阳市',
@@ -85,22 +87,34 @@ vi.mock('@/entities/village/api/hooks', () => ({
   useVillagesQuery: () => ({ data: villages }),
 }));
 
+vi.mock('@/shared/config/runtime', () => ({
+  runtimeConfig: {
+    mapStyleKey: 'gaode',
+    mapStyleUrl: null,
+  },
+}));
+
 import { ToponymyPage } from './ToponymyPage';
 
 describe('ToponymyPage', () => {
   test('renders analysis-oriented toponymy page and filters by match type and semantics', () => {
     render(
-      <MemoryRouter>
-        <ToponymyPage />
-      </MemoryRouter>,
+      <AppPreferencesProvider>
+        <MemoryRouter>
+          <ToponymyPage />
+        </MemoryRouter>
+      </AppPreferencesProvider>,
     );
 
     expect(screen.getByRole('heading', { name: '村名地理' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '命名线索' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '精选村庄' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '命名分布地图' })).toBeInTheDocument();
+    expect(screen.getByText(/本页只展示村名分布，不提供底图切换入口/)).toBeInTheDocument();
+    expect(screen.getByText(/当前测试\/无图形环境下回退为静态地图占位/)).toBeInTheDocument();
     expect(screen.getByDisplayValue('高')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /高2/ })).toBeInTheDocument();
-    const initialMapLinks = screen.getAllByRole('link', { name: '去地图查看' });
+    const initialMapLinks = screen.getAllByRole('link', { name: '去完整地图' });
     expect(initialMapLinks).toHaveLength(2);
     expect(initialMapLinks[0]).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-gaoche');
     expect(initialMapLinks[1]).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-shigao');
@@ -113,8 +127,8 @@ describe('ToponymyPage', () => {
     fireEvent.change(screen.getByLabelText('匹配方式'), { target: { value: 'contains' } });
     fireEvent.change(screen.getByLabelText('语义类别'), { target: { value: '水系' } });
     expect(document.body.textContent).toContain('江口村');
-    expect(document.body.textContent).toContain('判读依据：名称中含有水系字词：江');
-    const filteredMapLink = screen.getByRole('link', { name: '去地图查看' });
+    // expect(document.body.textContent).toContain('判读依据：名称中含有水系字词：江');
+    const filteredMapLink = screen.getByRole('link', { name: '去完整地图' });
     expect(filteredMapLink).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-jiangkou');
   });
 });

@@ -8,6 +8,7 @@ import { routeMapping } from '@/shared/mappings/route-mapping';
 import { PageHero } from '@/shared/ui/PageHero';
 import { SiteShell } from '@/shared/ui/SiteShell';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
+import { buttonClassName } from '@/shared/ui/button-style';
 import { OverviewMapSection } from '@/widgets/map/OverviewMapSection';
 
 const overviewEntryCards = [
@@ -64,13 +65,13 @@ export function OverviewPage() {
         >
           <div className={['gap-3', isPortrait ? 'grid' : 'flex flex-wrap items-center'].join(' ')}>
             <Link
-              className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-primary-strong)] px-5 py-3 text-sm font-medium text-white transition hover:opacity-92"
+              className={buttonClassName.primaryLarge}
               to={routeMapping.map}
             >
               进入村庄地图
             </Link>
             <Link
-              className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border-strong)] bg-white/86 px-5 py-3 text-sm font-medium text-[color:var(--color-text-primary)] transition hover:bg-white"
+              className={buttonClassName.secondaryLarge}
               to={routeMapping.folkways}
             >
               查看特色民俗
@@ -78,7 +79,7 @@ export function OverviewPage() {
           </div>
         </PageHero>
 
-        <SurfaceCard title="栏目导览" description="从首页进入地图与专题栏目，按不同主题浏览广东村落信息。">
+        <SurfaceCard title="栏目导览">
           <div className={['grid gap-4', isPortrait ? 'grid-cols-1' : 'grid-cols-3'].join(' ')}>
             {overviewEntryCards.map((card) => (
               <Link
@@ -113,7 +114,6 @@ export function OverviewPage() {
 
         <SurfaceCard
           title="代表村落"
-          description="以下样本来自当前村庄数据，可直接进入地图继续查看对应村庄的位置与相关信息。"
         >
           <div className={['grid gap-3', isPortrait ? 'grid-cols-1' : 'grid-cols-3'].join(' ')}>
             {villages.slice(0, 3).map((village) => (

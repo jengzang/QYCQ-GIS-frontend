@@ -153,4 +153,85 @@ describe('MapWorkspace MapLibre integration', () => {
     const villageSource = mapInstance.sources.get('villages');
     expect(villageSource?.setData).toHaveBeenCalled();
   });
+
+  test('updates map source data when villages prop shrinks after keyword filtering', () => {
+    const { rerender } = render(
+      <AppPreferencesProvider>
+        <MapWorkspace
+          activeMode="search"
+          facets={facets}
+          filters={{
+            city: '',
+            dialect: '',
+            economy: '',
+            ethnicity: '',
+            q: '',
+            town: '',
+            year: null,
+          }}
+          onFiltersChange={vi.fn()}
+          onModeChange={vi.fn()}
+          onSelectVillage={vi.fn()}
+          orientation="landscape"
+          selectedPrimaryId="vlg-fb354cdb"
+          villages={[
+            village,
+            {
+              ...village,
+              name: '白土村',
+              primaryId: 'vlg-baitu',
+              geometry: { coordinates: [112.1, 23.2], type: 'Point' },
+              searchText: '白土村 白土镇',
+              town: '白土镇',
+            },
+          ]}
+        />
+      </AppPreferencesProvider>,
+    );
+
+    const mapInstance = MockMap.instances[0];
+    mapInstance.emit('load');
+
+    const villageSource = mapInstance.sources.get('villages');
+    const setData = villageSource?.setData;
+    expect(setData).toBeDefined();
+    expect(setData).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        features: expect.arrayContaining([
+          expect.objectContaining({ properties: expect.objectContaining({ primaryId: 'vlg-fb354cdb' }) }),
+          expect.objectContaining({ properties: expect.objectContaining({ primaryId: 'vlg-baitu' }) }),
+        ]),
+      }),
+    );
+
+    rerender(
+      <AppPreferencesProvider>
+        <MapWorkspace
+          activeMode="search"
+          facets={facets}
+          filters={{
+            city: '',
+            dialect: '',
+            economy: '',
+            ethnicity: '',
+            q: '平治村',
+            town: '',
+            year: null,
+          }}
+          onFiltersChange={vi.fn()}
+          onModeChange={vi.fn()}
+          onSelectVillage={vi.fn()}
+          orientation="landscape"
+          selectedPrimaryId="vlg-fb354cdb"
+          villages={[village]}
+        />
+      </AppPreferencesProvider>,
+    );
+
+    expect(setData).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        features: [expect.objectContaining({ properties: expect.objectContaining({ primaryId: 'vlg-fb354cdb' }) })],
+      }),
+    );
+  });
 });

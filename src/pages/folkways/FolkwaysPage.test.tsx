@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
 
-const villages = [
+const baseVillages = [
   {
     city: '肇庆市',
     dialectGroup: '德庆话',
@@ -59,6 +59,27 @@ const villages = [
   },
 ];
 
+const extraFestivalVillages = Array.from({ length: 64 }, (_, index) => ({
+  city: '测试市',
+  dialectGroup: '测试话',
+  economy: '节庆旅游',
+  ethnicity: '汉族',
+  geometry: { coordinates: [111.9 + index * 0.001, 23.1], type: 'Point' },
+  name: `火龙测试村${index + 1}`,
+  primaryId: `vlg-festival-extra-${index + 1}`,
+  raw: {
+    居民民族: '汉族',
+    村俗或传统民居或村特色产品: '火龙节、巡游。',
+    村经济情况: '节庆旅游',
+    村名来源: '用于测试民俗结果分页。',
+  },
+  searchText: `火龙测试村${index + 1}`,
+  timeline: { rawLabel: '清代', sortYear: 1700 + index },
+  town: '测试镇',
+}));
+
+const villages = [...baseVillages, ...extraFestivalVillages];
+
 vi.mock('@/shared/lib/orientation', () => ({
   useOrientationMode: () => 'landscape',
 }));
@@ -84,10 +105,22 @@ describe('FolkwaysPage', () => {
     expect(screen.getByRole('button', { name: /传统民居/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /地方产品/ })).toBeInTheDocument();
     expect(screen.getByText(/按主题浏览广东村落的节庆、民居、物产与生活方式线索/)).toBeInTheDocument();
-    const mapLinks = screen.getAllByRole('link', { name: '去地图查看' });
-    expect(mapLinks[0]).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-fb354cdb');
+
+    expect(screen.getByText('已展示前 60 个村庄，共 66 个命中结果。')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '显示更多（剩余 6 个）' })).toBeInTheDocument();
+    expect(screen.queryByText('火龙测试村64')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '显示更多（剩余 6 个）' }));
+    expect(screen.getByText('已展示前 66 个村庄，共 66 个命中结果。')).toBeInTheDocument();
+    expect(screen.getByText('火龙测试村64')).toBeInTheDocument();
+    expect(
+      screen
+        .getAllByRole('link', { name: '去地图查看' })
+        .some((link) => link.getAttribute('href') === '/map?mode=search&primaryId=vlg-fb354cdb'),
+    ).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: /生计方式/ }));
+    expect(screen.getByText('已展示前 1 个村庄，共 1 个命中结果。')).toBeInTheDocument();
     expect(document.body.textContent).toContain('稻田村');
     expect(document.body.textContent).toContain('命中关键词：耕 / 农 / 制茶');
 
