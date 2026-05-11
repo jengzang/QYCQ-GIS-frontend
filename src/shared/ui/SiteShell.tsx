@@ -43,8 +43,8 @@ export function SiteShell({ children }: PropsWithChildren) {
                       [
                         'rounded-[1.05rem] border px-4 py-2.5 text-sm font-medium transition duration-200',
                         isActive
-                          ? 'border-[color:var(--color-nav-active-border)] bg-[linear-gradient(180deg,var(--color-nav-active-bg),var(--color-nav-active-bg-strong))] text-[color:var(--color-nav-active-text)] shadow-[0_14px_30px_rgba(52,74,96,0.18),inset_0_1px_0_rgba(255,255,255,0.62)]'
-                          : 'border-transparent text-[color:var(--color-text-secondary)] hover:-translate-y-[1px] hover:border-[color:var(--color-nav-hover-border)] hover:bg-[color:var(--color-nav-hover-bg)] hover:text-[color:var(--color-nav-hover-text)] hover:shadow-[0_10px_24px_rgba(55,72,92,0.1)]',
+                          ? 'border-[color:var(--color-nav-active-border)] bg-[linear-gradient(180deg,var(--color-nav-active-bg),var(--color-nav-active-bg-strong))] text-[color:var(--color-nav-active-text)] shadow-[0_12px_28px_rgba(82,88,77,0.14),inset_0_1px_0_rgba(255,255,255,0.5)]'
+                          : 'border-transparent text-[color:var(--color-text-secondary)] hover:-translate-y-[1px] hover:border-[color:var(--color-nav-hover-border)] hover:bg-[color:var(--color-nav-hover-bg)] hover:text-[color:var(--color-nav-hover-text)] hover:shadow-[0_10px_22px_rgba(86,88,79,0.08)]',
                       ].join(' ')
                     }
                     to={item.path}

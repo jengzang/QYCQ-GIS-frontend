@@ -163,11 +163,11 @@ function ModeTabs({ activeMode, onModeChange }: Pick<MapWorkspaceProps, 'activeM
                 key={mode.key}
                 aria-selected={isActive}
                 className={[
-                  'rounded-full border px-4 py-2 text-sm font-semibold transition duration-200',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2',
+                  'rounded-[1.05rem] border px-4 py-2 text-sm font-semibold transition duration-200',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-nav-active-border)] focus-visible:ring-offset-2',
                   isActive
-                    ? 'border-[color:rgba(59,130,246,0.28)] bg-[color:rgba(231,242,255,0.92)] text-[color:var(--color-primary-strong)] shadow-[0_8px_20px_rgba(59,130,246,0.12)]'
-                    : 'border-[color:var(--color-border-subtle)] bg-white/70 text-[color:var(--color-text-secondary)] hover:bg-white hover:text-[color:var(--color-text-primary)]',
+                    ? 'border-[color:var(--color-map-mode-active-border)] bg-[linear-gradient(180deg,var(--color-map-mode-active-bg),var(--color-map-mode-active-bg-strong))] text-[color:var(--color-map-mode-active-text)] shadow-[0_10px_24px_rgba(82,88,77,0.12),inset_0_1px_0_rgba(255,255,255,0.48)]'
+                    : 'border-[color:var(--color-border-subtle)] bg-white/72 text-[color:var(--color-text-secondary)] hover:-translate-y-[1px] hover:border-[color:var(--color-map-mode-hover-border)] hover:bg-[color:var(--color-map-mode-hover-bg)] hover:text-[color:var(--color-map-mode-hover-text)] hover:shadow-[0_8px_18px_rgba(86,88,79,0.08)]',
                 ].join(' ')}
                 data-state={isActive ? 'active' : 'inactive'}
                 onClick={() => onModeChange(mode.key)}
