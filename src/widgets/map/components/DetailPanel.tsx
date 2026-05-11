@@ -1,4 +1,5 @@
 import type { VillageRecord } from '@/entities/village/model/types';
+import { getTimelineDisplayLabel } from '@/shared/mappings/timeline-mapping';
 import { villageFieldMapping } from '@/shared/mappings/village-field-mapping';
 import type { MapModeKey } from '@/shared/mappings/nav-mapping';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
@@ -70,6 +71,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
 
   const summaryItems = buildSummaryItems(selectedVillage);
   const detailSections = buildDetailSections(selectedVillage);
+  const timelineLabel = getTimelineDisplayLabel(selectedVillage.timeline);
 
   return (
     <SurfaceCard title="村庄详情" description={`${selectedVillage.city || '城市未填'} · ${selectedVillage.town || '乡镇未填'}`} eyebrow="下部详情区">
@@ -81,7 +83,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-[color:var(--color-primary)] px-3 py-1 text-xs font-semibold text-white">{selectedVillage.dialectGroup}</span>
-            <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.timeline.rawLabel || '时间不详'}</span>
+            {timelineLabel ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{timelineLabel}</span> : null}
             {selectedVillage.ethnicity ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.ethnicity}</span> : null}
             {selectedVillage.economy ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.economy}</span> : null}
           </div>

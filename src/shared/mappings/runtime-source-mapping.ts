@@ -5,8 +5,8 @@ export const runtimeSourceMapping = {
     villagesPath: '/api/v1/villages',
   },
   mock: {
-    facetsPath: '/mock/facets.json',
-    villagesPath: '/mock/villages.json',
+    facetsPath: 'mock/facets.json',
+    villagesPath: 'mock/villages.json',
   },
   profiles: {
     'local-api': {

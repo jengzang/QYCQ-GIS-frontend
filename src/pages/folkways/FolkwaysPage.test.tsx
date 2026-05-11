@@ -70,24 +70,25 @@ vi.mock('@/entities/village/api/hooks', () => ({
 import { FolkwaysPage } from './FolkwaysPage';
 
 describe('FolkwaysPage', () => {
-  test('uses full matched count for metrics while only rendering six featured cards', () => {
+  test('renders current folkways sections and only shows six featured villages', () => {
     render(
       <MemoryRouter>
         <FolkwaysPage />
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('栏目导语')).toBeInTheDocument();
-    expect(screen.getByText('民俗内容')).toBeInTheDocument();
-    expect(screen.getByText('精选村庄')).toBeInTheDocument();
-    expect(screen.getAllByText('民俗村落').length).toBeGreaterThan(0);
-    expect(screen.getByText('7')).toBeInTheDocument();
-    expect(screen.getAllByText('民族线索').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: '民俗内容' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '精选村庄' })).toBeInTheDocument();
+    expect(screen.getByText('从节庆、民居与地方产品等线索浏览当前可见的村落文化内容。')).toBeInTheDocument();
+    expect(screen.getByText('节庆与日常')).toBeInTheDocument();
+    expect(screen.getByText('村落风貌')).toBeInTheDocument();
+    expect(screen.getByText('地图联动')).toBeInTheDocument();
     const villageLink = screen.getByRole('link', { name: /平治村/i });
     expect(villageLink).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-fb354cdb');
     expect(screen.getByText('汉族 / 种植砂糖橘')).toBeInTheDocument();
     expect(screen.getByText('瑶族 / 茶叶种植')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /扩展民俗村4/i })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /扩展民俗村5/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /村/i })).toHaveLength(8);
   });
 });

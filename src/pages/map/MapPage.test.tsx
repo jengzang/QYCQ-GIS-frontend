@@ -133,6 +133,10 @@ vi.mock('@/entities/village/api/hooks', () => ({
 
 import { App } from '@/app/App';
 
+function setHashRoute(path: string) {
+  window.history.pushState({}, '', `/#${path}`);
+}
+
 function setOrientation(portrait: boolean) {
   Object.defineProperty(window, 'innerWidth', {
     configurable: true,
@@ -163,7 +167,7 @@ function setOrientation(portrait: boolean) {
 describe('MapPage layout', () => {
   test('uses a two-column landscape layout instead of the old three-column split', () => {
     setOrientation(false);
-    window.history.pushState({}, '', '/map');
+    setHashRoute('/map');
 
     render(<App />);
 
@@ -173,7 +177,7 @@ describe('MapPage layout', () => {
   });
 
   beforeEach(() => {
-    window.history.pushState({}, '', '/map');
+    setHashRoute('/map');
     useVillageFacetsQueryMock.mockClear();
     useVillagesQueryMock.mockClear();
   });
@@ -192,7 +196,7 @@ describe('MapPage layout', () => {
 
   test('keeps an invalid primaryId visible as an invalid selection instead of silently swapping villages', () => {
     setOrientation(true);
-    window.history.pushState({}, '', '/map?primaryId=vlg-missing');
+    setHashRoute('/map?primaryId=vlg-missing');
 
     render(<App />);
 
@@ -208,7 +212,7 @@ describe('MapPage layout', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: '方言分布' }));
 
-    expect(window.location.search).toContain('mode=dialect');
+    expect(window.location.hash).toContain('mode=dialect');
     expect(pushStateSpy).toHaveBeenCalled();
   });
 
@@ -225,7 +229,7 @@ describe('MapPage layout', () => {
       target: { value: '肇庆市' },
     });
 
-    expect(window.location.search).toContain('city=%E8%82%87%E5%BA%86%E5%B8%82');
+    expect(window.location.hash).toContain('city=%E8%82%87%E5%BA%86%E5%B8%82');
     expect(pushStateSpy).toHaveBeenCalled();
 
     pushStateSpy.mockClear();
@@ -235,7 +239,7 @@ describe('MapPage layout', () => {
       target: { value: '平治村' },
     });
 
-    expect(window.location.search).toContain('q=%E5%B9%B3%E6%B2%BB%E6%9D%91');
+    expect(window.location.hash).toContain('q=%E5%B9%B3%E6%B2%BB%E6%9D%91');
     expect(replaceStateSpy).toHaveBeenCalled();
     expect(pushStateSpy).not.toHaveBeenCalled();
   });
@@ -262,25 +266,19 @@ describe('MapPage layout', () => {
 
   test('clears incompatible town from URL when it does not belong to the chosen city', () => {
     setOrientation(true);
-    window.history.pushState(
-      {},
-      '',
-      '/map?city=%E8%82%87%E5%BA%86%E5%B8%82&town=%E6%B2%B3%E5%8F%A3%E9%95%87',
-    );
+    setHashRoute('/map?city=%E8%82%87%E5%BA%86%E5%B8%82&town=%E6%B2%B3%E5%8F%A3%E9%95%87');
 
     render(<App />);
 
     expect(screen.getByLabelText('归属市')).toHaveValue('肇庆市');
     expect(screen.getByLabelText('归属镇')).toHaveValue('');
-    expect(window.location.search).toContain('city=%E8%82%87%E5%BA%86%E5%B8%82');
-    expect(window.location.search).not.toContain('town=');
+    expect(window.location.hash).toContain('city=%E8%82%87%E5%BA%86%E5%B8%82');
+    expect(window.location.hash).not.toContain('town=');
   });
 
   test('restores ethnicity and economy filters from URL and passes them into villages query', () => {
     setOrientation(true);
-    window.history.pushState(
-      {},
-      '',
+    setHashRoute(
       '/map?city=%E8%82%87%E5%BA%86%E5%B8%82&town=%E9%AB%98%E8%89%AF%E9%95%87&q=%E5%B9%B3%E6%B2%BB%E6%9D%91&ethnicity=%E6%B1%89%E6%97%8F&economy=%E7%A7%8D%E6%A4%8D%E7%A0%82%E7%B3%96%E6%A9%98',
     );
 
@@ -307,7 +305,7 @@ describe('MapPage layout', () => {
 
   test('clears primaryId when ethnicity filter changes', () => {
     setOrientation(true);
-    window.history.pushState({}, '', '/map?primaryId=vlg-fb354cdb');
+    setHashRoute('/map?primaryId=vlg-fb354cdb');
     const pushStateSpy = vi.spyOn(window.history, 'pushState');
 
     render(<App />);
@@ -317,15 +315,15 @@ describe('MapPage layout', () => {
       target: { value: '汉族' },
     });
 
-    expect(window.location.search).toContain('ethnicity=%E6%B1%89%E6%97%8F');
-    expect(window.location.search).not.toContain('primaryId=');
+    expect(window.location.hash).toContain('ethnicity=%E6%B1%89%E6%97%8F');
+    expect(window.location.hash).not.toContain('primaryId=');
     expect(pushStateSpy).toHaveBeenCalled();
   });
 
   test('settings page is the only place that changes global map style and theme', () => {
     setOrientation(false);
     window.localStorage.clear();
-    window.history.pushState({}, '', '/settings');
+    setHashRoute('/settings');
 
     render(<App />);
 

@@ -3,7 +3,7 @@ import type { Point } from 'geojson';
 import type { VillageApiRecord, VillageRecord } from '@/entities/village/model/types';
 import { resolveDialectGroup } from '@/shared/mappings/dialect-mapping';
 import { buildPrimaryId } from '@/shared/mappings/primaryid-mapping';
-import { parseTimelineSortYear } from '@/shared/mappings/timeline-mapping';
+import { parseVillageTimeline } from '@/shared/mappings/timeline-mapping';
 
 const fallbackGeometry: Point = {
   coordinates: [112, 23],
@@ -39,6 +39,7 @@ export function adaptVillageRecord(record: VillageApiRecord): VillageRecord {
   const city = record.city ?? record.raw?.归属市;
   const town = record.town ?? record.raw?.归属镇;
   const rawLabel = record.timeline?.rawLabel ?? record.raw?.建村时间;
+  const parsedTimeline = parseVillageTimeline(rawLabel);
   const ethnicity = normalizeOptionalText(record.ethnicity ?? record.raw?.居民民族);
   const economy = normalizeOptionalText(record.economy ?? record.raw?.村经济情况);
   const primaryId =
@@ -60,8 +61,12 @@ export function adaptVillageRecord(record: VillageApiRecord): VillageRecord {
     raw: record.raw ?? {},
     searchText: record.searchText ?? buildSearchText({ ...record, economy, ethnicity }),
     timeline: {
+      displayLabel: record.timeline?.displayLabel ?? parsedTimeline.displayLabel,
+      endYear: record.timeline?.endYear ?? parsedTimeline.endYear,
+      precision: record.timeline?.precision ?? parsedTimeline.precision,
       rawLabel,
-      sortYear: record.timeline?.sortYear ?? parseTimelineSortYear(rawLabel),
+      sortYear: record.timeline?.sortYear ?? parsedTimeline.sortYear,
+      startYear: record.timeline?.startYear ?? parsedTimeline.startYear,
     },
     town,
   };

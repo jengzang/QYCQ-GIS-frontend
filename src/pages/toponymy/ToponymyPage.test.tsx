@@ -70,24 +70,25 @@ vi.mock('@/entities/village/api/hooks', () => ({
 import { ToponymyPage } from './ToponymyPage';
 
 describe('ToponymyPage', () => {
-  test('uses full matched count for metrics while only rendering six featured cards', () => {
+  test('renders current toponymy sections and only shows six featured villages', () => {
     render(
       <MemoryRouter>
         <ToponymyPage />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { name: '栏目导语' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '命名线索' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '精选村庄' })).toBeInTheDocument();
-    expect(screen.getAllByText('地名村落').length).toBeGreaterThan(0);
-    expect(screen.getByText('7')).toBeInTheDocument();
-    expect(screen.getAllByText('命名线索').length).toBeGreaterThan(0);
+    expect(screen.getByText('从村名来源、地理环境与历史记忆等角度理解当前村落的命名脉络。')).toBeInTheDocument();
+    expect(screen.getByText('地貌线索')).toBeInTheDocument();
+    expect(screen.getAllByText('历史记忆').length).toBeGreaterThan(0);
+    expect(screen.getByText('空间对照')).toBeInTheDocument();
     const villageLink = screen.getByRole('link', { name: /双合村/i });
     expect(villageLink).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-dual');
     expect(screen.getByText('因村旁平坦田垌而得名。')).toBeInTheDocument();
     expect(screen.getByText('两水汇合而得名。')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /扩展地名村4/i })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /扩展地名村5/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /村/i })).toHaveLength(8);
   });
 });

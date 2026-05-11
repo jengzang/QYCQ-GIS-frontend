@@ -78,7 +78,7 @@ export function OverviewPage() {
           </div>
         </PageHero>
 
-        <SurfaceCard title="栏目导览" description="从首页进入地图与专题栏目，按不同主题浏览广东村落信息。" eyebrow="Portal sections">
+        <SurfaceCard title="栏目导览" description="从首页进入地图与专题栏目，按不同主题浏览广东村落信息。">
           <div className={['grid gap-4', isPortrait ? 'grid-cols-1' : 'grid-cols-3'].join(' ')}>
             {overviewEntryCards.map((card) => (
               <Link
@@ -114,7 +114,6 @@ export function OverviewPage() {
         <SurfaceCard
           title="代表村落"
           description="以下样本来自当前村庄数据，可直接进入地图继续查看对应村庄的位置与相关信息。"
-          eyebrow="Village samples"
         >
           <div className={['grid gap-3', isPortrait ? 'grid-cols-1' : 'grid-cols-3'].join(' ')}>
             {villages.slice(0, 3).map((village) => (

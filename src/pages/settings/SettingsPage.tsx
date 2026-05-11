@@ -1,7 +1,6 @@
 import { useAppPreferences, type ThemeMode } from '@/app/providers/AppPreferencesProvider';
 import { runtimeConfig } from '@/shared/config/runtime';
 import { getAvailableMapStyleOptions } from '@/shared/lib/map-style';
-import { PageHero } from '@/shared/ui/PageHero';
 import { SiteShell } from '@/shared/ui/SiteShell';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
 
@@ -65,25 +64,7 @@ export function SettingsPage() {
   return (
     <SiteShell>
       <div className="grid gap-4">
-        <PageHero
-          description="统一管理整个站点的地图底图和界面明暗主题。地图页、首页地图总览等所有地图都会读取这里的同一份设置。"
-          eyebrow="Global preferences"
-          metrics={[
-            {
-              hint: '当前全站共享的底图来源。',
-              label: '当前底图',
-              value: mapStyleOptions.find((option) => option.key === mapStyleKey)?.label ?? '未设置',
-            },
-            {
-              hint: '当前界面主题。',
-              label: '当前主题',
-              value: themeMode === 'dark' ? '夜间' : '日间',
-            },
-          ]}
-          title="设置"
-        />
-
-        <SurfaceCard title="地图底图" description="只允许在设置页统一切换；改动后首页与地图页会一起生效。" eyebrow="Map style">
+        <SurfaceCard title="地图底图" description="只允许在设置页统一切换；改动后首页与地图页会一起生效。">
           <SettingsSelect
             description="整个站点的地图底图只认这一处设置，避免首页、地图页出现不同入口和不同状态。"
             label="底图方案"
@@ -93,7 +74,7 @@ export function SettingsPage() {
           />
         </SurfaceCard>
 
-        <SurfaceCard title="界面主题" description="只支持日间 / 夜间两种模式，切换后整个页面壳子立即更新。" eyebrow="Theme mode">
+        <SurfaceCard title="界面主题" description="只支持日间 / 夜间两种模式，切换后整个页面壳子立即更新。">
           <SettingsSelect
             description="用于切换站点整体明暗风格，不改变地图业务数据，只改变界面外观。"
             label="主题模式"

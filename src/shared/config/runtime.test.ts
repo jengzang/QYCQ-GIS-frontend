@@ -16,6 +16,17 @@ describe('getRuntimeConfig', () => {
       mapStyleUrl: null,
       mode: 'development',
       runtimeProfile: 'mock',
+      sources: {
+        api: {
+          facetsPath: '/api/v1/villages/facets',
+          villageDetailPath: '/api/v1/villages',
+          villagesPath: '/api/v1/villages',
+        },
+        mock: {
+          facetsPath: 'mock/facets.json',
+          villagesPath: 'mock/villages.json',
+        },
+      },
     });
   });
 

@@ -22,6 +22,17 @@ export interface RawVillageFields {
   村规民约?: string;
 }
 
+export type TimelinePrecision = 'exact' | 'range' | 'period' | 'unknown';
+
+export interface VillageTimeline {
+  displayLabel?: string | null;
+  endYear?: number | null;
+  precision?: TimelinePrecision;
+  rawLabel?: string;
+  sortYear: number | null;
+  startYear?: number | null;
+}
+
 export interface VillageRecord {
   city?: string;
   dialectGroup: string;
@@ -32,10 +43,7 @@ export interface VillageRecord {
   primaryId: string;
   raw: RawVillageFields;
   searchText: string;
-  timeline: {
-    rawLabel?: string;
-    sortYear: number | null;
-  };
+  timeline: VillageTimeline;
   town?: string;
 }
 
@@ -49,10 +57,7 @@ export interface VillageApiRecord {
   primaryid?: string;
   raw?: RawVillageFields;
   searchText?: string;
-  timeline?: {
-    rawLabel?: string;
-    sortYear?: number | null;
-  };
+  timeline?: VillageTimeline;
   town?: string;
 }
 

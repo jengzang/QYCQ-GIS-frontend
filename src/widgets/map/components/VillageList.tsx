@@ -1,4 +1,5 @@
 import type { VillageRecord } from '@/entities/village/model/types';
+import { getTimelineDisplayLabel } from '@/shared/mappings/timeline-mapping';
 import type { MapModeKey } from '@/shared/mappings/nav-mapping';
 
 interface VillageListProps {
@@ -31,6 +32,7 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
       <div className="min-h-0 flex-1 space-y-2 overflow-auto pr-1" data-testid="village-list-scroll-region">
         {visibleVillages.map((village) => {
           const isSelected = village.primaryId === selectedPrimaryId;
+          const timelineLabel = getTimelineDisplayLabel(village.timeline);
 
           return (
             <button
@@ -48,8 +50,8 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-semibold tracking-[-0.02em] text-[color:var(--color-text-primary)]">{village.name}</span>
                 <div className="flex flex-wrap justify-end gap-2">
-                  {activeMode === 'timeline' && village.timeline.sortYear === null ? (
-                    <span className="rounded-full border border-[color:var(--color-border-subtle)] px-2 py-0.5 text-[11px] text-[color:var(--color-text-secondary)]">时间不详</span>
+                  {activeMode === 'timeline' && timelineLabel ? (
+                    <span className="rounded-full border border-[color:var(--color-border-subtle)] px-2 py-0.5 text-[11px] text-[color:var(--color-text-secondary)]">{timelineLabel}</span>
                   ) : null}
                   <span className="rounded-full bg-[color:var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--color-primary-strong)]">{village.dialectGroup}</span>
                 </div>

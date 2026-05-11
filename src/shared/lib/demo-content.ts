@@ -219,24 +219,3 @@ export const overviewPageCopy = {
   eyebrow: '课题导览',
   title: '课题简介',
 };
-
-export const mapPageCopy = {
-  description:
-    '在地图中浏览村庄分布，并结合检索、源流迁徙和方言分布三种模式查看不同线索。',
-  eyebrow: '地图浏览',
-  title: '村庄地图',
-};
-
-export const folkwaysPageCopy = {
-  description:
-    '汇集村俗、传统民居与地方产品等信息，结合民族和经济线索查看具有代表性的村落内容。',
-  eyebrow: '民俗栏目',
-  title: '特色民俗',
-};
-
-export const toponymyPageCopy = {
-  description:
-    '从村名来源、地理特征与历史记忆切入，整理各地村名背后的命名线索。',
-  eyebrow: '地名栏目',
-  title: '村名地理',
-};

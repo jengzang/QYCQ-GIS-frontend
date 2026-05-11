@@ -44,7 +44,7 @@ describe('createVillageRepository', () => {
 
     const result = await repository.list({ economy: '种植砂糖橘', ethnicity: '汉族', q: '平治' });
 
-    expect(fetchMock).toHaveBeenCalledWith('/mock/villages.json');
+    expect(fetchMock).toHaveBeenCalledWith('mock/villages.json');
     expect(result[0]?.primaryId).toBe('vlg-fb354cdb');
     expect(result[0]?.dialectGroup).toBe('德庆话');
     expect(result[0]?.ethnicity).toBe('汉族');

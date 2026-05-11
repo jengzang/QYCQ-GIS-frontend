@@ -271,7 +271,6 @@ export function OverviewMapSection({ villages }: { villages: VillageRecord[] }) 
     <SurfaceCard
       title="地图总览"
       description="首页直接保留可交互地图；底图由设置页统一控制，进入地图页后再做更完整的筛选、列表与详情联动。"
-      eyebrow="Map overview"
     >
       <div className="space-y-4">
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="首页地图模式">

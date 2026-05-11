@@ -3,8 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { villageRepository } from '@/entities/village/api/repositoryInstance';
 import type { VillageQuery } from '@/entities/village/api/types';
 
-export function useVillagesQuery(params: VillageQuery) {
+export function useVillagesQuery(params: VillageQuery, options?: { enabled?: boolean }) {
   return useQuery({
+    enabled: options?.enabled ?? true,
     queryFn: () => villageRepository.list(params),
     queryKey: ['villages', params],
   });
