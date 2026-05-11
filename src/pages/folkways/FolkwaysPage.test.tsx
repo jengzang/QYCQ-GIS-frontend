@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
 
@@ -39,24 +39,24 @@ const villages = [
     timeline: { rawLabel: '清代', sortYear: 1680 },
     town: '双合镇',
   },
-  ...Array.from({ length: 5 }, (_, index) => ({
-    city: '清远市',
-    dialectGroup: '白话',
-    economy: `扩展经济${index + 1}`,
-    ethnicity: index % 2 === 0 ? '汉族' : '壮族',
-    geometry: { coordinates: [112.2 + index * 0.01, 23 + index * 0.01], type: 'Point' as const },
-    name: `扩展民俗村${index + 1}`,
-    primaryId: `vlg-folk-${index + 1}`,
+  {
+    city: '揭阳市',
+    dialectGroup: '客家话',
+    economy: '水稻种植',
+    ethnicity: '汉族',
+    geometry: { coordinates: [116.2, 23.5], type: 'Point' },
+    name: '稻田村',
+    primaryId: 'vlg-farm',
     raw: {
-      居民民族: index % 2 === 0 ? '汉族' : '壮族',
-      村俗或传统民居或村特色产品: `扩展民俗内容${index + 1}`,
-      村经济情况: `扩展经济${index + 1}`,
-      村名来源: `扩展地名${index + 1}`,
+      居民民族: '汉族',
+      村俗或传统民居或村特色产品: '农耕、晒谷、制茶。',
+      村经济情况: '水稻种植',
+      村名来源: '村前良田成片。',
     },
-    searchText: `扩展民俗村${index + 1}`,
-    timeline: { rawLabel: '清代', sortYear: 1700 + index },
-    town: '扩展镇',
-  })),
+    searchText: '稻田村',
+    timeline: { rawLabel: '清代', sortYear: 1710 },
+    town: '榕城镇',
+  },
 ];
 
 vi.mock('@/shared/lib/orientation', () => ({
@@ -70,25 +70,29 @@ vi.mock('@/entities/village/api/hooks', () => ({
 import { FolkwaysPage } from './FolkwaysPage';
 
 describe('FolkwaysPage', () => {
-  test('renders current folkways sections and only shows six featured villages', () => {
+  test('renders theme-based folkway browsing and updates results by theme', () => {
     render(
       <MemoryRouter>
         <FolkwaysPage />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { name: '民俗内容' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '精选村庄' })).toBeInTheDocument();
-    expect(screen.getByText('从节庆、民居与地方产品等线索浏览当前可见的村落文化内容。')).toBeInTheDocument();
-    expect(screen.getByText('节庆与日常')).toBeInTheDocument();
-    expect(screen.getByText('村落风貌')).toBeInTheDocument();
-    expect(screen.getByText('地图联动')).toBeInTheDocument();
-    const villageLink = screen.getByRole('link', { name: /平治村/i });
-    expect(villageLink).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-fb354cdb');
-    expect(screen.getByText('汉族 / 种植砂糖橘')).toBeInTheDocument();
-    expect(screen.getByText('瑶族 / 茶叶种植')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /扩展民俗村4/i })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /扩展民俗村5/i })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: /村/i })).toHaveLength(8);
+    expect(screen.getByRole('heading', { name: '特色民俗' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '民俗内容' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '精选村庄' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /节庆仪式/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /传统民居/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /地方产品/ })).toBeInTheDocument();
+    expect(screen.getByText(/按主题浏览广东村落的节庆、民居、物产与生活方式线索/)).toBeInTheDocument();
+    const mapLinks = screen.getAllByRole('link', { name: '去地图查看' });
+    expect(mapLinks[0]).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-fb354cdb');
+
+    fireEvent.click(screen.getByRole('button', { name: /生计方式/ }));
+    expect(document.body.textContent).toContain('稻田村');
+    expect(document.body.textContent).toContain('命中关键词：耕 / 农 / 制茶');
+
+    fireEvent.click(screen.getByRole('button', { name: /信仰与族群/ }));
+    expect(document.body.textContent).toContain('双合村');
+    expect(document.body.textContent).toContain('命中关键词：盘王');
   });
 });
