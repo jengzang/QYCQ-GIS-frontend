@@ -343,6 +343,7 @@ export function MapWorkspace({
           dialect: '',
           economy: '',
           ethnicity: '',
+          fulltext: false,
           q: '',
           town: '',
           year: null,

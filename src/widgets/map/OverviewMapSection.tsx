@@ -311,7 +311,7 @@ export function OverviewMapSection({ villages }: { villages: VillageRecord[] }) 
                   : routeMapping.map
               }
             >
-              进入完整地图
+              进入村庄地图
             </Link>
           </div>
         </div>

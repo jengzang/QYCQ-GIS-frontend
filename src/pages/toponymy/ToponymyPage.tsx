@@ -518,7 +518,7 @@ export function ToponymyPage() {
                   className={buttonClassName.primary}
                   to={`${routeMapping.map}?${queryParamMapping.mode}=search&${queryParamMapping.primaryId}=${selectedVillage.primaryId}`}
                 >
-                  在完整地图查看
+                  在村庄地图查看
                 </Link>
               ) : null}
             </div>
@@ -571,13 +571,13 @@ export function ToponymyPage() {
                       onClick={() => setSelectedPrimaryId(village.primaryId)}
                       type="button"
                     >
-                      在本页地图定位
+                      地图定位
                     </button>
                     <Link
                       className={buttonClassName.primary}
                       to={`${routeMapping.map}?${queryParamMapping.mode}=search&${queryParamMapping.primaryId}=${village.primaryId}`}
                     >
-                      去完整地图
+                      去村庄地图
                     </Link>
                   </div>
                 </article>

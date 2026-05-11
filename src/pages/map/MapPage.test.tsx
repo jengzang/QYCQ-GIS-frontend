@@ -264,7 +264,8 @@ describe('MapPage layout', () => {
     expect(screen.getByRole('tab', { name: '方言分布' })).toHaveAttribute('data-state', 'active');
     expect(screen.getByRole('tab', { name: '村庄检索' })).toHaveAttribute('data-state', 'inactive');
     expect(screen.getByLabelText('居民民族')).toBeInTheDocument();
-    expect(screen.getByLabelText('方言分组')).toBeInTheDocument();
+    expect(screen.getByLabelText('方言分布')).toBeInTheDocument();
+    expect(screen.queryByLabelText('方言分组')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('经济情况')).not.toBeInTheDocument();
   });
 

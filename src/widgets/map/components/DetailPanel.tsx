@@ -25,7 +25,7 @@ function buildSummaryItems(village: VillageRecord) {
   return [
     { label: '居民民族', value: village.ethnicity || village.raw.居民民族 || '未填' },
     { label: '经济情况', value: village.economy || village.raw.村经济情况 || '未填' },
-    { label: '方言分组', value: village.dialectGroup || '未填' },
+    { label: '方言分布', value: village.dialectGroup || '未填' },
   ];
 }
 

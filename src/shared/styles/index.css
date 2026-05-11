@@ -12,6 +12,7 @@
   --color-text-tertiary: #8a948f;
   --color-primary: #557a95;
   --color-primary-strong: #38556d;
+  --color-primary-button: #38556d;
   --color-primary-soft: rgba(85, 122, 149, 0.12);
   --color-primary-contrast: #f7fbff;
   --color-accent-warm: rgba(221, 204, 183, 0.56);
@@ -20,6 +21,20 @@
   --shadow-soft: 0 14px 34px rgba(75, 84, 84, 0.07);
   --shadow-card: 0 18px 42px rgba(78, 82, 77, 0.08);
   --shadow-stage: 0 26px 70px rgba(77, 83, 88, 0.12);
+  --color-nav-hover-bg: rgba(250, 248, 244, 0.92);
+  --color-nav-hover-border: rgba(126, 134, 130, 0.26);
+  --color-nav-hover-text: #25313d;
+  --color-nav-active-bg: rgba(233, 234, 228, 0.96);
+  --color-nav-active-bg-strong: rgba(218, 222, 214, 0.98);
+  --color-nav-active-border: rgba(116, 128, 123, 0.3);
+  --color-nav-active-text: #31463f;
+  --color-map-mode-hover-bg: rgba(250, 248, 244, 0.92);
+  --color-map-mode-hover-border: rgba(126, 134, 130, 0.24);
+  --color-map-mode-hover-text: #25313d;
+  --color-map-mode-active-bg: rgba(233, 234, 228, 0.96);
+  --color-map-mode-active-bg-strong: rgba(218, 222, 214, 0.98);
+  --color-map-mode-active-border: rgba(116, 128, 123, 0.3);
+  --color-map-mode-active-text: #31463f;
   --color-map-dialect-1: #557a95;
   --color-map-dialect-2: #6d8fa8;
   --color-map-dialect-3: #7ba0b8;
@@ -47,6 +62,7 @@
   --color-text-tertiary: #8ea0b3;
   --color-primary: #7da7cc;
   --color-primary-strong: #a9c7e3;
+  --color-primary-button: #38556d;
   --color-primary-soft: rgba(125, 167, 204, 0.18);
   --color-primary-contrast: #0d1520;
   --color-accent-warm: rgba(109, 95, 80, 0.28);
@@ -55,6 +71,20 @@
   --shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.28);
   --shadow-card: 0 18px 42px rgba(0, 0, 0, 0.32);
   --shadow-stage: 0 26px 70px rgba(0, 0, 0, 0.4);
+  --color-nav-hover-bg: rgba(26, 34, 41, 0.92);
+  --color-nav-hover-border: rgba(141, 152, 145, 0.24);
+  --color-nav-hover-text: #f2f5ef;
+  --color-nav-active-bg: rgba(58, 68, 64, 0.96);
+  --color-nav-active-bg-strong: rgba(46, 56, 53, 0.98);
+  --color-nav-active-border: rgba(163, 177, 168, 0.26);
+  --color-nav-active-text: #f5f7f1;
+  --color-map-mode-hover-bg: rgba(26, 34, 41, 0.92);
+  --color-map-mode-hover-border: rgba(141, 152, 145, 0.22);
+  --color-map-mode-hover-text: #f2f5ef;
+  --color-map-mode-active-bg: rgba(58, 68, 64, 0.96);
+  --color-map-mode-active-bg-strong: rgba(46, 56, 53, 0.98);
+  --color-map-mode-active-border: rgba(163, 177, 168, 0.26);
+  --color-map-mode-active-text: #f5f7f1;
   color: var(--color-text-primary);
   background:
     radial-gradient(circle at top left, rgba(72, 97, 126, 0.22), transparent 22%),
@@ -107,6 +137,11 @@ li {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+a.text-white,
+button.text-white {
+  color: var(--color-white);
 }
 
 button,

@@ -195,7 +195,7 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
               </select>
             </FieldShell>
 
-            <FieldShell title="方言分组">
+            <FieldShell title="方言分布">
               <select className={inputClassName} onChange={(event) => onFiltersChange({ dialect: event.currentTarget.value })} value={filters.dialect}>
                 <option value="">全部方言</option>
                 {facets?.dialectGroups.map((dialectGroup) => (

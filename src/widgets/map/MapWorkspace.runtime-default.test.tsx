@@ -62,6 +62,7 @@ describe('MapWorkspace runtime defaults', () => {
             dialect: '',
             economy: '',
             ethnicity: '',
+            fulltext: false,
             q: '',
             town: '',
             year: null,

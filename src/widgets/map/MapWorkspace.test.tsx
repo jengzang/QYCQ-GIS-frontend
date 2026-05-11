@@ -54,6 +54,7 @@ describe('MapWorkspace', () => {
           dialect: '',
           economy: '',
           ethnicity: '',
+          fulltext: false,
           q: '',
           town: '',
           year: null,
@@ -84,6 +85,7 @@ describe('MapWorkspace', () => {
           dialect: '',
           economy: '种植砂糖橘',
           ethnicity: '汉族',
+          fulltext: false,
           q: '平治村',
           town: '高良镇',
           year: null,
@@ -112,6 +114,7 @@ describe('MapWorkspace', () => {
       dialect: '',
       economy: '',
       ethnicity: '',
+      fulltext: false,
       q: '',
       town: '',
       year: null,
@@ -128,6 +131,7 @@ describe('MapWorkspace', () => {
           dialect: '',
           economy: '',
           ethnicity: '',
+          fulltext: false,
           q: '',
           town: '',
           year: null,
@@ -156,7 +160,7 @@ describe('MapWorkspace', () => {
     expect(screen.getByTestId('village-list-scroll-region')).toHaveClass('overflow-auto');
     expect(screen.getByTestId('map-stage-content')).not.toContainElement(screen.getByRole('heading', { name: '村庄详情' }));
     expect(screen.getByTestId('map-detail-full-width-row')).toContainElement(screen.getByTestId('map-detail-panel'));
-    expect(screen.getByTestId('map-landscape-layout')).toHaveClass('[grid-template-rows:minmax(0,52rem)_auto]');
+    expect(screen.getByTestId('map-landscape-layout')).toHaveClass('[grid-template-rows:auto_minmax(0,80dvh)_auto]');
     expect(screen.getByRole('heading', { name: '筛选与村庄列表' }).closest('section')).toHaveClass('overflow-hidden');
     expect(screen.getByRole('heading', { name: '筛选与村庄列表' }).closest('section')).toHaveClass('h-full');
     expect(screen.getByRole('heading', { name: '村庄地图' }).closest('section')).toHaveClass('h-full');
