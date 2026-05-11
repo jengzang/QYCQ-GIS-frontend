@@ -17,7 +17,7 @@ export function PageHero({ children, description, eyebrow, metrics, title }: Pag
   const isPortrait = orientation === 'portrait';
 
   return (
-    <section className={['rounded-[1.9rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(249,250,247,0.86))] shadow-[var(--shadow-soft)]', isPortrait ? 'p-5' : 'p-7'].join(' ')}>
+    <section className={['rounded-[1.9rem] border border-[color:var(--color-border-subtle)] bg-[image:var(--color-surface-hero)] shadow-[var(--shadow-soft)]', isPortrait ? 'p-5' : 'p-7'].join(' ')}>
       <div className="space-y-5">
         <div className={['gap-5', metrics && metrics.length > 0 && !isPortrait ? 'grid items-start [grid-template-columns:minmax(0,1fr)_minmax(16rem,21rem)]' : 'grid'].join(' ')}>
           <div className="space-y-3">

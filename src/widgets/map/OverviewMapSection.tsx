@@ -277,7 +277,7 @@ export function OverviewMapSection({ villages }: { villages: VillageRecord[] }) 
                 aria-selected={isActive}
                 className={[
                   'rounded-full border px-4 py-2 text-sm font-semibold transition',
-                  'border-[color:var(--color-border-subtle)] bg-white/86 text-[color:var(--color-text-primary)] hover:bg-white',
+                  'border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg-strong)] text-[color:var(--color-text-primary)] hover:bg-[color:var(--color-field-bg-strong)]',
                   isActive ? 'border-[color:var(--color-border-strong)] text-[color:var(--color-primary-strong)]' : '',
                 ].join(' ')}
                 onClick={() => setActiveMode(mode.key)}

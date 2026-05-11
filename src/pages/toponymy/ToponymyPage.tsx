@@ -252,13 +252,13 @@ function ToponymyMapCanvas({
 
   if (typeof window === 'undefined' || !('WebGLRenderingContext' in window)) {
     return (
-      <div className="flex min-h-[26rem] items-center justify-center rounded-[1.7rem] bg-[linear-gradient(160deg,#e8f1fb,#f5f8fc)] p-6 text-center text-sm leading-7 text-[color:var(--color-text-secondary)]">
+      <div className="flex min-h-[26rem] items-center justify-center rounded-[1.7rem] bg-[image:var(--color-stage-overlay)] p-6 text-center text-sm leading-7 text-[color:var(--color-text-secondary)]">
         当前测试/无图形环境下回退为静态地图占位；浏览器中会显示命名结果的真实空间分布。
       </div>
     );
   }
 
-  return <div className="min-h-[26rem] overflow-hidden rounded-[1.7rem] border border-[color:var(--color-border-subtle)] bg-[#edf4fa]" ref={containerRef} />;
+  return <div className="min-h-[26rem] overflow-hidden rounded-[1.7rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-stage-shell)]" ref={containerRef} />;
 }
 
 function ToponymyMapLegend({ categories }: { categories: Array<Exclude<ToponymySemanticCategory, '全部'>> }) {
@@ -267,7 +267,7 @@ function ToponymyMapLegend({ categories }: { categories: Array<Exclude<ToponymyS
       {categories.map((category) => (
         <span
           key={category}
-          className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border-subtle)] bg-white/82 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]"
+          className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] px-3 py-1 text-xs text-[color:var(--color-text-secondary)]"
         >
           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: toponymyCategoryColorMapping[category] }} />
           {category}
@@ -354,7 +354,7 @@ export function ToponymyPage() {
           description="从村名字形、词位和命名语义中观察地理文化线索；可按关键词、前后缀和语义类别筛选。"
           headerActions={
             <button
-              className="rounded-full border border-[color:var(--color-border-subtle)] px-4 py-2 text-sm text-[color:var(--color-text-secondary)] transition hover:bg-white"
+              className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] px-4 py-2 text-sm text-[color:var(--color-text-secondary)] transition hover:bg-[color:var(--color-field-bg-strong)]"
               onClick={() => {
                 setKeyword(getDefaultToponymyKeyword(toponymyVillages));
                 setMatchType('contains');
@@ -368,13 +368,13 @@ export function ToponymyPage() {
         >
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(18rem,1fr)]">
             <div className="space-y-4">
-              <div className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-white/84 p-4">
+              <div className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] p-4">
                 <p className="text-sm font-semibold text-[color:var(--color-text-primary)]">检索条件</p>
                 <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.2fr)_auto_auto] md:items-end">
                   <label className="space-y-2 text-sm text-[color:var(--color-text-secondary)]">
                     <span className="block font-medium text-[color:var(--color-text-primary)]">关键词</span>
                     <input
-                      className="w-full rounded-[1rem] border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 text-sm text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)]"
+                      className="w-full rounded-[1rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-field-bg)] px-4 py-3 text-sm text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-[color:var(--color-field-bg-strong)]"
                       onChange={(event) => setKeyword(normalizeToponymyKeyword(event.target.value))}
                       placeholder="输入村名字词，如“高”“龙”“田”“水”"
                       type="text"
@@ -385,7 +385,7 @@ export function ToponymyPage() {
                   <label className="space-y-2 text-sm text-[color:var(--color-text-secondary)]">
                     <span className="block font-medium text-[color:var(--color-text-primary)]">匹配方式</span>
                     <select
-                      className="w-full rounded-[1rem] border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 text-sm text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)]"
+                      className="w-full rounded-[1rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-field-bg)] px-4 py-3 text-sm text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-[color:var(--color-field-bg-strong)]"
                       onChange={(event) => setMatchType(event.target.value as ToponymyMatchType)}
                       value={matchType}
                     >
@@ -400,7 +400,7 @@ export function ToponymyPage() {
                   <label className="space-y-2 text-sm text-[color:var(--color-text-secondary)]">
                     <span className="block font-medium text-[color:var(--color-text-primary)]">语义类别</span>
                     <select
-                      className="w-full rounded-[1rem] border border-[color:var(--color-border-subtle)] bg-white px-4 py-3 text-sm text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)]"
+                      className="w-full rounded-[1rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-field-bg)] px-4 py-3 text-sm text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-[color:var(--color-field-bg-strong)]"
                       onChange={(event) => setSemanticCategory(event.target.value as ToponymySemanticCategory)}
                       value={semanticCategory}
                     >
@@ -414,7 +414,7 @@ export function ToponymyPage() {
                 </div>
               </div>
 
-              <div className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-white/84 p-4">
+              <div className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="mr-2 text-sm font-semibold text-[color:var(--color-text-primary)]">高频字入口</p>
                   {quickChars.map((item) => {
@@ -426,7 +426,7 @@ export function ToponymyPage() {
                           'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition',
                           isActive
                             ? 'border-[color:var(--color-border-strong)] bg-[color:var(--color-primary-soft)] text-[color:var(--color-primary-strong)]'
-                            : 'border-[color:var(--color-border-subtle)] bg-white text-[color:var(--color-text-primary)] hover:bg-[color:var(--color-bg-soft)]',
+                            : 'border-[color:var(--color-border-subtle)] bg-[color:var(--color-field-bg)] text-[color:var(--color-text-primary)] hover:bg-[color:var(--color-field-bg-strong)]',
                         ].join(' ')}
                         onClick={() => setKeyword(item.value)}
                         type="button"
@@ -448,19 +448,19 @@ export function ToponymyPage() {
                   : '当前展示默认高频村名样本，可点击上方常见字开始分析。'}
               </p>
               <div className={['mt-4 grid gap-3', isPortrait ? 'grid-cols-2' : 'grid-cols-2'].join(' ')}>
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">命中村庄</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{analysis.summary.matchCount}</p>
                 </div>
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">主导语义</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{analysis.summary.dominantCategory}</p>
                 </div>
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">当前匹配</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{activeMatchOption?.label ?? '包含'}</p>
                 </div>
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">常见搭配字</p>
                   <p className="mt-2 text-base font-semibold text-[color:var(--color-text-primary)]">
                     {analysis.summary.topCollocations.length ? analysis.summary.topCollocations.join(' / ') : '暂无'}
@@ -504,11 +504,11 @@ export function ToponymyPage() {
                   : '当前筛选没有可定位村庄，请调整关键词或语义类别。'}
               </p>
               <div className="mt-4 space-y-3">
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">地图点位</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{analysis.summary.matchCount}</p>
                 </div>
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">语义类别</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{mapLegendCategories.length}</p>
                 </div>

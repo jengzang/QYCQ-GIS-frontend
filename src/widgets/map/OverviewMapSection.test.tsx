@@ -48,10 +48,10 @@ describe('OverviewMapSection', () => {
     expect(screen.getByRole('heading', { name: '地图总览' })).toBeInTheDocument();
     expect(screen.queryByText('底图来源')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /切换底图：/i })).not.toBeInTheDocument();
-    expect(screen.getByText('当前底图')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '前往设置修改' })).toHaveAttribute('href', '/settings');
+    expect(screen.getByText(/地图底图与明暗主题可在“设置”页统一调整/)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '前往设置修改' })).not.toBeInTheDocument();
     expect(screen.getByText(/当前测试\/无图形环境下回退为静态占位/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '进入完整地图' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '进入村庄地图' })).toHaveAttribute(
       'href',
       '/map?mode=search&primaryId=vlg-fb354cdb',
     );

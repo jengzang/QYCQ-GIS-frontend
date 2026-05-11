@@ -90,16 +90,16 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
   return (
     <SurfaceCard title="村庄详情" description={`${selectedVillage.city || '城市未填'} · ${selectedVillage.town || '乡镇未填'}`} >
       <div className="space-y-5">
-        <div className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-white/78 p-4">
+        <div className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] p-4">
           <div>
             <p className="text-2xl font-semibold tracking-[-0.04em] text-[color:var(--color-text-primary)]">{selectedVillage.name}</p>
             <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">以单村为单位，把时间、语言、民系与经济线索收束到同一块连续阅读区域。</p>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-[color:var(--color-primary)] px-3 py-1 text-xs font-semibold text-white">{selectedVillage.dialectGroup}</span>
-            {timelineLabel ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{timelineLabel}</span> : null}
-            {selectedVillage.ethnicity ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.ethnicity}</span> : null}
-            {selectedVillage.economy ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/70 px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.economy}</span> : null}
+            {timelineLabel ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg-strong)] px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{timelineLabel}</span> : null}
+            {selectedVillage.ethnicity ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg-strong)] px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.ethnicity}</span> : null}
+            {selectedVillage.economy ? <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg-strong)] px-3 py-1 text-xs text-[color:var(--color-text-secondary)]">{selectedVillage.economy}</span> : null}
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {summaryItems.map((item) => (
@@ -112,7 +112,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
           {populationItems.length ? (
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               {populationItems.map((item) => (
-                <div key={item.label} className="rounded-[1.25rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(238,244,252,0.92),rgba(255,255,255,0.76))] p-3">
+                <div key={item.label} className="rounded-[1.25rem] border border-[color:var(--color-border-subtle)] bg-[image:var(--color-surface-panel)] p-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--color-text-tertiary)]">{item.label}</p>
                   <p className="mt-2 text-lg font-semibold text-[color:var(--color-text-primary)]">{item.value}</p>
                 </div>
@@ -120,7 +120,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
             </div>
           ) : null}
           {selectedVillage.raw.位置 ? (
-            <div className="mt-4 rounded-[1.25rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(238,244,252,0.92),rgba(255,255,255,0.7))] p-3">
+            <div className="mt-4 rounded-[1.25rem] border border-[color:var(--color-border-subtle)] bg-[image:var(--color-surface-panel)] p-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--color-text-tertiary)]">位置概览</p>
               <div className="mt-2">{renderFieldValue(selectedVillage.raw.位置)}</div>
             </div>
@@ -135,7 +135,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
             </div>
             <div className="grid gap-3 xl:grid-cols-3">
               {detailSections.map((section) => (
-                <div key={section.key} className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-white/76 p-4">
+                <div key={section.key} className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] p-4">
                   <h4 className="text-sm font-semibold text-[color:var(--color-primary-strong)]">{section.title}</h4>
                   <div className="mt-3 space-y-3">
                     {section.rows.map((row) => (
@@ -151,7 +151,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
           </div>
         ) : null}
 
-        <div className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(245,248,252,0.95),rgba(233,242,250,0.85))] p-4">
+        <div className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-[image:var(--color-surface-panel)] p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--color-text-tertiary)]">阅读提示</p>
           <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">{getModeHint(activeMode)}</p>
         </div>

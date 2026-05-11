@@ -41,7 +41,7 @@ function FieldShell({ children, headerSuffix, title }: { children: ReactNode; he
 }
 
 const inputClassName =
-  'rounded-[1.2rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-surface-strong)] px-4 py-3 text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(59,130,246,0.08)]';
+  'rounded-[1.2rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-field-bg)] px-4 py-3 text-[color:var(--color-text-primary)] outline-none transition focus:border-[color:var(--color-border-strong)] focus:bg-[color:var(--color-field-bg-strong)] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.08)]';
 
 const keywordDebounceMs = 300;
 
@@ -166,7 +166,7 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
         ) : null}
 
         {activeMode === 'timeline' ? (
-          <div className="rounded-[1.35rem] border border-[color:var(--color-border-subtle)] bg-white/72 p-4 shadow-[var(--shadow-soft)]">
+          <div className="rounded-[1.35rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] p-4 shadow-[var(--shadow-soft)]">
             <FieldShell title="时间轴">
               <input
                 aria-label="源流迁徙时间轴"

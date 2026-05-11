@@ -91,14 +91,14 @@ export function FolkwaysPage() {
                       'rounded-[1.45rem] border p-4 text-left transition',
                       isActive
                         ? 'border-[color:var(--color-border-strong)] bg-[color:var(--color-primary-soft)]'
-                        : 'border-[color:var(--color-border-subtle)] bg-white/86 hover:bg-white',
+                        : 'border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] hover:bg-[color:var(--color-field-bg-strong)]',
                     ].join(' ')}
                     onClick={() => setActiveThemeKey(theme.key)}
                     type="button"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-[color:var(--color-text-primary)]">{theme.label}</p>
-                      <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-[color:var(--color-primary-strong)]">{theme.count}</span>
+                      <span className="rounded-full bg-[color:var(--color-chip-bg-strong)] px-2.5 py-1 text-xs font-medium text-[color:var(--color-primary-strong)]">{theme.count}</span>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">{theme.description}</p>
                     <p className="mt-3 text-xs leading-6 text-[color:var(--color-text-tertiary)]">关键词：{theme.keywords.slice(0, 4).join(' / ')}</p>
@@ -112,11 +112,11 @@ export function FolkwaysPage() {
               <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[color:var(--color-text-primary)]">{activeTheme?.label ?? '节庆仪式'}</p>
               <p className="mt-3 text-sm leading-7 text-[color:var(--color-text-secondary)]">{activeTheme?.summaryTemplate ?? '从主题切换中浏览村落文化样本。'}</p>
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">命中村庄</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{analysis.villages.length}</p>
                 </div>
-                <div className="rounded-[1.15rem] bg-white/90 p-3">
+                <div className="rounded-[1.15rem] bg-[color:var(--color-bg-muted-card)] p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">高频关键词</p>
                   <p className="mt-2 text-sm font-semibold text-[color:var(--color-text-primary)]">
                     {analysis.leadingKeywords.length ? analysis.leadingKeywords.join(' / ') : '暂无'}
@@ -145,7 +145,7 @@ export function FolkwaysPage() {
                 {visibleVillages.map((village) => (
                   <article
                     key={village.primaryId}
-                    className="rounded-[1.55rem] border border-[color:var(--color-border-subtle)] bg-white/88 p-5"
+                    className="rounded-[1.55rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] p-5"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -172,7 +172,7 @@ export function FolkwaysPage() {
               {hasMoreResults ? (
                 <div className="mt-5 flex justify-center">
                   <button
-                    className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/90 px-5 py-2 text-sm font-medium text-[color:var(--color-text-primary)] transition hover:bg-[color:var(--color-bg-soft)]"
+                    className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg-strong)] px-5 py-2 text-sm font-medium text-[color:var(--color-text-primary)] transition hover:bg-[color:var(--color-field-bg-strong)]"
                     onClick={() => setVisibleResultCount((count) => Math.min(count + visibleResultStep, analysis.villages.length))}
                     type="button"
                   >

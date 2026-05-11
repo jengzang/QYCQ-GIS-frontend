@@ -89,7 +89,7 @@ export function OverviewPage() {
             {overviewEntryCards.map((card) => (
               <Link
                 key={card.title}
-                className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-white/86 p-5 transition hover:-translate-y-0.5 hover:bg-white"
+                className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] p-5 transition hover:-translate-y-0.5 hover:bg-[color:var(--color-field-bg-strong)]"
                 to={card.href}
               >
                 <p className="text-lg font-semibold tracking-[-0.03em] text-[color:var(--color-text-primary)]">{card.title}</p>
@@ -106,7 +106,7 @@ export function OverviewPage() {
               {villages.slice(0, 3).map((village) => (
                 <Link
                   key={village.primaryId}
-                  className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-white/88 p-4 transition hover:-translate-y-0.5 hover:bg-white"
+                  className="rounded-[1.45rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-subtle-card)] p-4 transition hover:-translate-y-0.5 hover:bg-[color:var(--color-field-bg-strong)]"
                   to={`${routeMapping.map}?${queryParamMapping.mode}=search&${queryParamMapping.primaryId}=${village.primaryId}`}
                 >
                   <p className="text-sm font-semibold text-[color:var(--color-primary-strong)]">{village.name}</p>

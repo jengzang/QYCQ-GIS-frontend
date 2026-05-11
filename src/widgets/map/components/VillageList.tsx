@@ -24,7 +24,7 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
           <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)]">显示村庄</p>
           {/* <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">结果列表保持短摘要，便于快速切村庄。</p> */}
         </div>
-        <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/75 px-3 py-1 text-xs font-semibold text-[color:var(--color-text-secondary)]">
+        <span className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] px-3 py-1 text-xs font-semibold text-[color:var(--color-text-secondary)]">
           {visibleVillages.length} / {villages.length}
         </span>
       </div>
@@ -39,9 +39,9 @@ export function VillageList({ activeMode, onSelectVillage, selectedPrimaryId, vi
               key={village.primaryId}
               className={[
                 'w-full rounded-[1.4rem] border px-4 py-4 text-left transition',
-                'border-[color:var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,250,255,0.76))] shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:bg-white',
+                'border-[color:var(--color-border-subtle)] bg-[image:var(--color-surface-panel)] shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:bg-[color:var(--color-field-bg-strong)]',
                 isSelected
-                  ? 'border-[color:var(--color-border-strong)] bg-[linear-gradient(135deg,#ffffff,#edf5ff)] shadow-[0_22px_46px_rgba(59,130,246,0.18)]'
+                  ? 'border-[color:var(--color-border-strong)] bg-[image:var(--color-surface-elevated)] shadow-[0_22px_46px_rgba(59,130,246,0.18)]'
                   : '',
               ].join(' ')}
               onClick={() => onSelectVillage(village.primaryId)}

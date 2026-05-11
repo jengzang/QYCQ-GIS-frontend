@@ -248,8 +248,8 @@ function ModeTabs({ activeMode, onModeChange }: Pick<MapWorkspaceProps, 'activeM
                   'rounded-[1.05rem] border px-4 py-2 text-sm font-semibold transition duration-200',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-nav-active-border)] focus-visible:ring-offset-2',
                   isActive
-                    ? 'border-[color:var(--color-map-mode-active-border)] bg-[linear-gradient(180deg,var(--color-map-mode-active-bg),var(--color-map-mode-active-bg-strong))] text-[color:var(--color-map-mode-active-text)] shadow-[0_10px_24px_rgba(82,88,77,0.12),inset_0_1px_0_rgba(255,255,255,0.48)]'
-                    : 'border-[color:var(--color-border-subtle)] bg-white/72 text-[color:var(--color-text-secondary)] hover:-translate-y-[1px] hover:border-[color:var(--color-map-mode-hover-border)] hover:bg-[color:var(--color-map-mode-hover-bg)] hover:text-[color:var(--color-map-mode-hover-text)] hover:shadow-[0_8px_18px_rgba(86,88,79,0.08)]',
+                    ? 'border-[color:var(--color-map-mode-active-border)] bg-[linear-gradient(180deg,var(--color-map-mode-active-bg),var(--color-map-mode-active-bg-strong))] text-[color:var(--color-map-mode-active-text)] shadow-[0_10px_24px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.18)]'
+                    : 'border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] text-[color:var(--color-text-secondary)] hover:-translate-y-[1px] hover:border-[color:var(--color-map-mode-hover-border)] hover:bg-[color:var(--color-map-mode-hover-bg)] hover:text-[color:var(--color-map-mode-hover-text)] hover:shadow-[0_8px_18px_rgba(0,0,0,0.14)]',
                 ].join(' ')}
                 data-state={isActive ? 'active' : 'inactive'}
                 onClick={() => onModeChange(mode.key)}
@@ -376,15 +376,15 @@ function MapCanvas({
 
   if (typeof window === 'undefined' || !('WebGLRenderingContext' in window)) {
     return (
-      <div className="flex h-[38rem] items-center justify-center rounded-[2rem] bg-[linear-gradient(160deg,#e8f1fb,#f5f8fc)] p-6 text-center text-sm leading-7 text-[color:var(--color-text-secondary)] md:h-[44rem]">
+      <div className="flex h-[38rem] items-center justify-center rounded-[2rem] bg-[image:var(--color-stage-overlay)] p-6 text-center text-sm leading-7 text-[color:var(--color-text-secondary)] md:h-[44rem]">
         当前环境未启用 WebGL，测试和无图形环境下会回退到静态地图占位。浏览器里将自动切换到 MapLibre。
       </div>
     );
   }
 
   return (
-    <div className="relative h-[38rem] overflow-hidden rounded-[2rem] border border-[color:var(--color-border-subtle)] bg-[#edf4fa] shadow-[var(--shadow-stage)] md:h-[44rem]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.8),transparent_24%),linear-gradient(180deg,rgba(209,228,244,0.72),rgba(236,243,248,0.82))]" />
+    <div className="relative h-[38rem] overflow-hidden rounded-[2rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-stage-shell)] shadow-[var(--shadow-stage)] md:h-[44rem]">
+      <div className="pointer-events-none absolute inset-0 bg-[image:var(--color-stage-overlay)]" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-70"
@@ -419,7 +419,7 @@ export function MapWorkspace({
   const clearFiltersButton = (
     <button
       aria-label="一键清空筛选"
-      className="rounded-full border border-[color:var(--color-border-subtle)] bg-white/80 px-2.5 py-1 text-[11px] font-medium leading-none text-[color:var(--color-primary-strong)] shadow-[var(--shadow-soft)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+      className="rounded-full border border-[color:var(--color-border-subtle)] bg-[color:var(--color-chip-bg)] px-2.5 py-1 text-[11px] font-medium leading-none text-[color:var(--color-primary-strong)] shadow-[var(--shadow-soft)] transition hover:bg-[color:var(--color-field-bg-strong)] disabled:cursor-not-allowed disabled:opacity-50"
       disabled={!canClearFilters}
       onClick={() =>
         onFiltersChange({

@@ -13,7 +13,7 @@ export function SurfaceCard({ children, className, contentClassName, description
   return (
     <section
       className={[
-        'rounded-[1.7rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(248,248,244,0.82))] p-5 shadow-[var(--shadow-card)]',
+        'rounded-[1.7rem] border border-[color:var(--color-border-subtle)] bg-[image:var(--color-surface-elevated)] p-5 shadow-[var(--shadow-card)]',
         className ?? '',
       ].join(' ')}
     >
