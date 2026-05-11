@@ -13,6 +13,15 @@ interface DetailPanelProps {
 
 const summaryFieldLabels = new Set(['归属市', '归属镇', '位置', '建村时间', '居民民族', '村经济情况']);
 
+function buildPopulationItems(village: VillageRecord) {
+  return villageFieldMapping.metrics
+    .map((metric) => ({
+      label: metric.label,
+      value: village.raw[metric.key],
+    }))
+    .filter((item) => item.value);
+}
+
 function renderFieldValue(value?: string) {
   if (!value) {
     return null;
@@ -70,6 +79,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
   }
 
   const summaryItems = buildSummaryItems(selectedVillage);
+  const populationItems = buildPopulationItems(selectedVillage);
   const detailSections = buildDetailSections(selectedVillage);
   const timelineLabel = getTimelineDisplayLabel(selectedVillage.timeline);
 
@@ -95,6 +105,16 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
               </div>
             ))}
           </div>
+          {populationItems.length ? (
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {populationItems.map((item) => (
+                <div key={item.label} className="rounded-[1.25rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(238,244,252,0.92),rgba(255,255,255,0.76))] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--color-text-tertiary)]">{item.label}</p>
+                  <p className="mt-2 text-lg font-semibold text-[color:var(--color-text-primary)]">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
           {selectedVillage.raw.位置 ? (
             <div className="mt-4 rounded-[1.25rem] border border-[color:var(--color-border-subtle)] bg-[linear-gradient(135deg,rgba(238,244,252,0.92),rgba(255,255,255,0.7))] p-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--color-text-tertiary)]">位置概览</p>

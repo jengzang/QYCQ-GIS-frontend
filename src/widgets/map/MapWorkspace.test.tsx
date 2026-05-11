@@ -16,7 +16,10 @@ const village: VillageRecord = {
   name: '平治村',
   primaryId: 'vlg-fb354cdb',
   raw: {
+    女性人数: '494',
+    居民总人数: '899',
     位置: '高良镇西南侧',
+    男性人数: '405',
     居民民族: '汉族',
     村俗或传统民居或村特色产品: '舞火龙、灰塑镬耳屋、砂糖橘。',
     村经济情况: '种植砂糖橘',
@@ -155,6 +158,12 @@ describe('MapWorkspace', () => {
     expect(screen.getAllByText('汉族').length).toBeGreaterThan(0);
     expect(screen.getAllByText('经济情况').length).toBeGreaterThan(0);
     expect(screen.getAllByText('种植砂糖橘').length).toBeGreaterThan(0);
+    expect(screen.getByText('居民总人数')).toBeInTheDocument();
+    expect(screen.getByText('899')).toBeInTheDocument();
+    expect(screen.getByText('男性人数')).toBeInTheDocument();
+    expect(screen.getByText('405')).toBeInTheDocument();
+    expect(screen.getByText('女性人数')).toBeInTheDocument();
+    expect(screen.getByText('494')).toBeInTheDocument();
     expect(screen.queryByText(/primaryId:/)).not.toBeInTheDocument();
     expect(screen.getByTestId('village-list-scroll-region')).toHaveClass('flex-1');
     expect(screen.getByTestId('village-list-scroll-region')).toHaveClass('overflow-auto');
