@@ -58,10 +58,14 @@ describe('OverviewPage', () => {
 
     expect(screen.getByRole('heading', { name: '课题简介' })).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: /进入村庄地图/i })[0]).toHaveAttribute('href', '/map');
-    expect(screen.getByRole('heading', { name: '栏目导览' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /查看特色民俗/i })[0]).toHaveAttribute('href', '/folkways');
+    expect(screen.getAllByRole('link', { name: /查看村名地理/i })[0]).toHaveAttribute('href', '/toponymy');
     expect(screen.getByText('地图总览')).toBeInTheDocument();
-    expect(screen.getByText('研究对象')).toBeInTheDocument();
-    expect(screen.getByText('代表村落')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '栏目入口' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '从这些村落开始' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '课题说明' })).toBeInTheDocument();
+    expect(screen.queryByText('研究对象')).not.toBeInTheDocument();
+    expect(screen.queryByText('代表村落')).not.toBeInTheDocument();
     expect(screen.queryByText('演示节奏')).not.toBeInTheDocument();
   });
 });
