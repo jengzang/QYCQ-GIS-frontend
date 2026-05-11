@@ -141,9 +141,9 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
 
         {activeMode === 'search' ? (
           <div className={['grid gap-3', orientation === 'portrait' ? 'grid-cols-1' : 'grid-cols-2'].join(' ')}>
-            <FieldShell title="居民民族">
+            <FieldShell title="民系">
               <select className={inputClassName} onChange={(event) => onFiltersChange({ ethnicity: event.currentTarget.value })} value={filters.ethnicity}>
-                <option value="">全部民族</option>
+                <option value="">全部民系</option>
                 {facets?.ethnicities.map((ethnicity) => (
                   <option key={ethnicity} value={ethnicity}>
                     {ethnicity}
@@ -184,9 +184,9 @@ export function FilterPanel({ activeMode, facets, filters, onFiltersChange, orie
 
         {activeMode === 'dialect' ? (
           <div className={['grid gap-3', orientation === 'portrait' ? 'grid-cols-1' : 'grid-cols-2'].join(' ')}>
-            <FieldShell title="居民民族">
+            <FieldShell title="民系">
               <select className={inputClassName} onChange={(event) => onFiltersChange({ ethnicity: event.currentTarget.value })} value={filters.ethnicity}>
-                <option value="">全部民族</option>
+                <option value="">全部民系</option>
                 {facets?.ethnicities.map((ethnicity) => (
                   <option key={ethnicity} value={ethnicity}>
                     {ethnicity}

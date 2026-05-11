@@ -1,6 +1,6 @@
 import type { VillageRecord } from '@/entities/village/model/types';
 import { getTimelineDisplayLabel } from '@/shared/mappings/timeline-mapping';
-import { villageFieldMapping } from '@/shared/mappings/village-field-mapping';
+import { villageFieldDisplayLabelMapping, villageFieldMapping } from '@/shared/mappings/village-field-mapping';
 import type { MapModeKey } from '@/shared/mappings/nav-mapping';
 import { SurfaceCard } from '@/shared/ui/SurfaceCard';
 
@@ -12,6 +12,10 @@ interface DetailPanelProps {
 }
 
 const summaryFieldLabels = new Set(['归属市', '归属镇', '位置', '建村时间', '居民民族', '村经济情况']);
+
+function getDisplayFieldLabel(field: string) {
+  return villageFieldDisplayLabelMapping[field as keyof typeof villageFieldDisplayLabelMapping] ?? field;
+}
 
 function buildPopulationItems(village: VillageRecord) {
   return villageFieldMapping.metrics
@@ -32,7 +36,7 @@ function renderFieldValue(value?: string) {
 
 function buildSummaryItems(village: VillageRecord) {
   return [
-    { label: '居民民族', value: village.ethnicity || village.raw.居民民族 || '未填' },
+    { label: '民系', value: village.ethnicity || village.raw.居民民族 || '未填' },
     { label: '经济情况', value: village.economy || village.raw.村经济情况 || '未填' },
     { label: '方言分布', value: village.dialectGroup || '未填' },
   ];
@@ -47,7 +51,7 @@ function getModeHint(activeMode: MapModeKey) {
     return '当前是迁徙模式，建议先看时间标签，再结合源流故事理解聚落形成过程。';
   }
 
-  return '当前是方言模式，建议先看颜色图例与空间分布，再对照语言与族群信息阅读。';
+  return '当前是方言模式，建议先看颜色图例与空间分布，再对照语言与民系信息阅读。';
 }
 
 function buildDetailSections(village: VillageRecord) {
@@ -56,7 +60,7 @@ function buildDetailSections(village: VillageRecord) {
       key: section.key,
       rows: section.fields
         .filter((field) => !summaryFieldLabels.has(field))
-        .map((field) => ({ field, value: village.raw[field] }))
+        .map((field) => ({ field, label: getDisplayFieldLabel(field), value: village.raw[field] }))
         .filter((item) => item.value),
       title: section.title,
     }))
@@ -89,7 +93,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
         <div className="rounded-[1.5rem] border border-[color:var(--color-border-subtle)] bg-white/78 p-4">
           <div>
             <p className="text-2xl font-semibold tracking-[-0.04em] text-[color:var(--color-text-primary)]">{selectedVillage.name}</p>
-            <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">以单村为单位，把时间、语言、族群与经济线索收束到同一块连续阅读区域。</p>
+            <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">以单村为单位，把时间、语言、民系与经济线索收束到同一块连续阅读区域。</p>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-[color:var(--color-primary)] px-3 py-1 text-xs font-semibold text-white">{selectedVillage.dialectGroup}</span>
@@ -136,7 +140,7 @@ export function DetailPanel({ activeMode, hasInvalidSelection, hasVillages, sele
                   <div className="mt-3 space-y-3">
                     {section.rows.map((row) => (
                       <div key={row.field} className="rounded-[1.15rem] border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-surface)]/80 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-tertiary)]">{row.field}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-tertiary)]">{row.label}</p>
                         <p className="mt-2 text-sm leading-6 text-[color:var(--color-text-secondary)]">{row.value}</p>
                       </div>
                     ))}

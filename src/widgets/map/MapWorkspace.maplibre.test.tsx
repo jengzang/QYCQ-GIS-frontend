@@ -80,6 +80,7 @@ const village: VillageRecord = {
   primaryId: 'vlg-fb354cdb',
   raw: {
     位置: '高良镇西南侧',
+    居民总人数: '899',
     居民民族: '汉族',
     村俗或传统民居或村特色产品: '舞火龙、灰塑镬耳屋、砂糖橘。',
     村经济情况: '种植砂糖橘',
@@ -234,6 +235,37 @@ describe('MapWorkspace MapLibre integration', () => {
     expect(setData).toHaveBeenLastCalledWith(
       expect.objectContaining({
         features: [expect.objectContaining({ properties: expect.objectContaining({ primaryId: 'vlg-fb354cdb' }) })],
+      }),
+    );
+  });
+
+  test('uses population-based circle radius when the global preference is enabled', () => {
+    window.localStorage.setItem('qycq-village-point-size-mode', 'population');
+
+    renderWorkspace();
+
+    const mapInstance = MockMap.instances[0];
+    mapInstance.emit('load');
+
+    const radiusCall = mapInstance.setPaintProperty.mock.calls.find(
+      ([layerId, property]) => layerId === 'village-symbols' && property === 'circle-radius',
+    );
+
+    expect(radiusCall).toBeDefined();
+    expect(radiusCall?.[2]).toEqual(
+      expect.arrayContaining([
+        'case',
+        ['==', ['get', 'primaryId'], 'vlg-fb354cdb'],
+      ]),
+    );
+    expect(JSON.stringify(radiusCall?.[2])).toContain('populationTotal');
+    expect(JSON.stringify(radiusCall?.[2])).toContain('11');
+    expect(JSON.stringify(radiusCall?.[2])).toContain('9');
+
+    const villageSource = mapInstance.sources.get('villages');
+    expect(villageSource?.setData).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        features: [expect.objectContaining({ properties: expect.objectContaining({ populationTotal: 899 }) })],
       }),
     );
   });

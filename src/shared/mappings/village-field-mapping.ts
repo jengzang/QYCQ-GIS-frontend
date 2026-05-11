@@ -1,3 +1,7 @@
+export const villageFieldDisplayLabelMapping = {
+  居民民族: '民系',
+} as const;
+
 export const villageFieldMapping = {
   detailSections: [
     {
@@ -13,7 +17,7 @@ export const villageFieldMapping = {
     {
       fields: ['村居民使用语言情况', '居民民族', '世居村民姓氏'],
       key: 'people',
-      title: '语言与族群',
+      title: '语言与民系',
     },
     {
       fields: ['村俗或传统民居或村特色产品', '村经济情况', '村规民约'],

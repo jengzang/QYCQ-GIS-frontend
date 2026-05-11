@@ -34,6 +34,20 @@ function buildSearchText(record: VillageApiRecord): string {
     .join(' ');
 }
 
+function parsePopulationTotal(value: string | undefined): number | null {
+  const normalized = value?.replace(/,/g, '').trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const parsedValue = Number(normalized);
+  if (!Number.isFinite(parsedValue)) {
+    return null;
+  }
+
+  return parsedValue;
+}
+
 export function adaptVillageRecord(record: VillageApiRecord): VillageRecord {
   const name = record.name ?? record.raw?.村名 ?? '';
   const city = record.city ?? record.raw?.归属市;
@@ -57,6 +71,7 @@ export function adaptVillageRecord(record: VillageApiRecord): VillageRecord {
     ethnicity,
     geometry: (record.geometry as VillageRecord['geometry']) ?? fallbackGeometry,
     name,
+    populationTotal: parsePopulationTotal(record.raw?.居民总人数),
     primaryId,
     raw: record.raw ?? {},
     searchText: record.searchText ?? buildSearchText({ ...record, economy, ethnicity }),

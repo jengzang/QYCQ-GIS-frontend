@@ -40,6 +40,7 @@ export interface VillageRecord {
   ethnicity?: string;
   geometry: VillageGeometry;
   name: string;
+  populationTotal?: number | null;
   primaryId: string;
   raw: RawVillageFields;
   searchText: string;

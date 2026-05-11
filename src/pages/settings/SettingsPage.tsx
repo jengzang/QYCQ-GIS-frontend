@@ -1,4 +1,8 @@
-import { useAppPreferences, type ThemeMode } from '@/app/providers/AppPreferencesProvider';
+import {
+  useAppPreferences,
+  type ThemeMode,
+  type VillagePointSizeMode,
+} from '@/app/providers/AppPreferencesProvider';
 import { runtimeConfig } from '@/shared/config/runtime';
 import { getAvailableMapStyleOptions } from '@/shared/lib/map-style';
 import { SiteShell } from '@/shared/ui/SiteShell';
@@ -6,14 +10,27 @@ import { SurfaceCard } from '@/shared/ui/SurfaceCard';
 
 const themeOptions: Array<{ description: string; key: ThemeMode; label: string }> = [
   {
-    description: '保留当前浅色门户风格，适合白天展示与汇报。',
+    description: '保留当前浅色门户风格，适合白天浏览。',
     key: 'light',
     label: '日间模式',
   },
   {
-    description: '切换为深色界面，适合夜间浏览与大屏展示。',
+    description: '切换为深色界面，适合夜间浏览。',
     key: 'dark',
     label: '夜间模式',
+  },
+];
+
+const villagePointSizeModeOptions: Array<{ description: string; key: VillagePointSizeMode; label: string }> = [
+  {
+    description: '保持所有村庄点使用统一半径，适合普通浏览。',
+    key: 'fixed',
+    label: '固定大小',
+  },
+  {
+    description: '按人口数量分档调整村庄点大小，便于快速判断规模。',
+    key: 'population',
+    label: '按人口数量',
   },
 ];
 
@@ -58,12 +75,19 @@ function SettingsSelect({
 }
 
 export function SettingsPage() {
-  const { mapStyleKey, setMapStyleKey, setThemeMode, themeMode } = useAppPreferences();
+  const {
+    mapStyleKey,
+    setMapStyleKey,
+    setThemeMode,
+    setVillagePointSizeMode,
+    themeMode,
+    villagePointSizeMode,
+  } = useAppPreferences();
   const mapStyleOptions = getAvailableMapStyleOptions(runtimeConfig.mapStyleUrl);
 
   return (
     <SiteShell>
-      <div className="grid gap-4">
+      <div className="mx-auto grid w-full max-w-6xl gap-4 md:grid-cols-2 xl:grid-cols-3">
         <SurfaceCard title="地图底图" >
           <SettingsSelect
             description="统一更改网站地图所用的底图"
@@ -81,6 +105,16 @@ export function SettingsPage() {
             onChange={(value) => setThemeMode(value as ThemeMode)}
             options={themeOptions.map((option) => ({ label: option.label, value: option.key }))}
             value={themeMode}
+          />
+        </SurfaceCard>
+
+        <SurfaceCard title="村庄点显示" >
+          <SettingsSelect
+            description="控制村庄点使用固定大小，或按人口数量分档显示。"
+            label="村庄点大小"
+            onChange={(value) => setVillagePointSizeMode(value as VillagePointSizeMode)}
+            options={villagePointSizeModeOptions.map((option) => ({ label: option.label, value: option.key }))}
+            value={villagePointSizeMode}
           />
         </SurfaceCard>
       </div>

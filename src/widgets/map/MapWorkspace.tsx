@@ -23,6 +23,7 @@ type VillageFeature = Feature<
     city: string;
     dialectGroup: string;
     name: string;
+    populationTotal: number | null;
     primaryId: string;
     sortYear: number | null;
     town: string;
@@ -44,6 +45,81 @@ function getSelectedVillage(villages: VillageRecord[], selectedPrimaryId: string
   return villages.find((village) => village.primaryId === selectedPrimaryId) ?? null;
 }
 
+function parsePopulationTotal(value: string | number | null | undefined): number | null {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  const normalized = value?.replace(/,/g, '').trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const parsedValue = Number(normalized);
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function resolvePopulationRadius(populationTotal: number | null): number {
+  if (populationTotal === null || populationTotal < 100) {
+    return 4.5;
+  }
+
+  if (populationTotal < 300) {
+    return 6;
+  }
+
+  if (populationTotal < 600) {
+    return 7.5;
+  }
+
+  if (populationTotal < 1200) {
+    return 9;
+  }
+
+  return 11;
+}
+
+function buildVillageCircleRadiusExpression(selectedPrimaryId: string, villagePointSizeMode: 'fixed' | 'population') {
+  if (villagePointSizeMode === 'fixed') {
+    return ['case', ['==', ['get', 'primaryId'], selectedPrimaryId], 8.5, 6];
+  }
+
+  const smallRadius = resolvePopulationRadius(99);
+  const mediumRadius = resolvePopulationRadius(299);
+  const largeRadius = resolvePopulationRadius(599);
+  const extraLargeRadius = resolvePopulationRadius(1199);
+  const maximumRadius = resolvePopulationRadius(1200);
+
+  return [
+    'case',
+    ['==', ['get', 'primaryId'], selectedPrimaryId],
+    [
+      'case',
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 100],
+      smallRadius + 2,
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 300],
+      mediumRadius + 2,
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 600],
+      largeRadius + 2,
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 1200],
+      extraLargeRadius + 2,
+      maximumRadius + 2,
+    ],
+    [
+      'case',
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 100],
+      smallRadius,
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 300],
+      mediumRadius,
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 600],
+      largeRadius,
+      ['<', ['coalesce', ['get', 'populationTotal'], 0], 1200],
+      extraLargeRadius,
+      maximumRadius,
+    ],
+  ];
+}
+
 function buildFeatureCollection(villages: VillageRecord[]): FeatureCollection<Point> {
   const features: VillageFeature[] = villages
     .filter((village): village is VillageRecord & { geometry: Point } => village.geometry.type === 'Point')
@@ -53,6 +129,7 @@ function buildFeatureCollection(villages: VillageRecord[]): FeatureCollection<Po
         city: village.city ?? '',
         dialectGroup: village.dialectGroup,
         name: village.name,
+        populationTotal: village.populationTotal ?? parsePopulationTotal(village.raw.居民总人数),
         primaryId: village.primaryId,
         sortYear: village.timeline.sortYear,
         town: village.town ?? '',
@@ -114,7 +191,12 @@ function ensureVillageLayers(map: Map) {
   }
 }
 
-function applyVillageStyle(map: Map, activeMode: MapModeKey, selectedPrimaryId: string) {
+function applyVillageStyle(
+  map: Map,
+  activeMode: MapModeKey,
+  selectedPrimaryId: string,
+  villagePointSizeMode: 'fixed' | 'population',
+) {
   map.setPaintProperty(
     mapLayerMapping.symbolLayerId,
     'circle-color',
@@ -128,7 +210,7 @@ function applyVillageStyle(map: Map, activeMode: MapModeKey, selectedPrimaryId: 
   map.setPaintProperty(
     mapLayerMapping.symbolLayerId,
     'circle-radius',
-    ['case', ['==', ['get', 'primaryId'], selectedPrimaryId], 8.5, 6],
+    buildVillageCircleRadiusExpression(selectedPrimaryId, villagePointSizeMode),
   );
   map.setPaintProperty(
     mapLayerMapping.symbolLayerId,
@@ -205,9 +287,11 @@ function MapCanvas({
   mapStyleKey,
   onSelectVillage,
   selectedPrimaryId,
+  villagePointSizeMode,
   villages,
 }: Pick<MapWorkspaceProps, 'activeMode' | 'onSelectVillage' | 'selectedPrimaryId' | 'villages'> & {
   mapStyleKey: MapStyleKey;
+  villagePointSizeMode: 'fixed' | 'population';
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
@@ -217,7 +301,7 @@ function MapCanvas({
     ensureVillageLayers(map);
     const source = map.getSource(mapLayerMapping.sourceId) as GeoJSONSource | undefined;
     source?.setData(buildFeatureCollection(villages));
-    applyVillageStyle(map, activeMode, selectedPrimaryId);
+    applyVillageStyle(map, activeMode, selectedPrimaryId, villagePointSizeMode);
 
     const selectedVillage = villages.find((village) => village.primaryId === selectedPrimaryId);
     if (selectedVillage?.geometry.type === 'Point') {
@@ -288,7 +372,7 @@ function MapCanvas({
       return;
     }
     syncMapState(map);
-  }, [activeMode, selectedPrimaryId, villages]);
+  }, [activeMode, selectedPrimaryId, villagePointSizeMode, villages]);
 
   if (typeof window === 'undefined' || !('WebGLRenderingContext' in window)) {
     return (
@@ -329,7 +413,7 @@ export function MapWorkspace({
   townOptions,
   villages,
 }: MapWorkspaceProps) {
-  const { mapStyleKey } = useAppPreferences();
+  const { mapStyleKey, villagePointSizeMode } = useAppPreferences();
   const selectedVillage = getSelectedVillage(villages, selectedPrimaryId);
   const canClearFilters = hasActiveFilters(filters);
   const clearFiltersButton = (
@@ -396,6 +480,7 @@ export function MapWorkspace({
         mapStyleKey={mapStyleKey}
         onSelectVillage={onSelectVillage}
         selectedPrimaryId={selectedPrimaryId}
+        villagePointSizeMode={villagePointSizeMode}
         villages={villages}
       />
     </div>

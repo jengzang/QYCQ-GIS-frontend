@@ -114,7 +114,7 @@ describe('ToponymyPage', () => {
     expect(screen.getByText(/当前测试\/无图形环境下回退为静态地图占位/)).toBeInTheDocument();
     expect(screen.getByDisplayValue('高')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /高2/ })).toBeInTheDocument();
-    const initialMapLinks = screen.getAllByRole('link', { name: '去完整地图' });
+    const initialMapLinks = screen.getAllByRole('link', { name: '去村庄地图' });
     expect(initialMapLinks).toHaveLength(2);
     expect(initialMapLinks[0]).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-gaoche');
     expect(initialMapLinks[1]).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-shigao');
@@ -128,7 +128,7 @@ describe('ToponymyPage', () => {
     fireEvent.change(screen.getByLabelText('语义类别'), { target: { value: '水系' } });
     expect(document.body.textContent).toContain('江口村');
     // expect(document.body.textContent).toContain('判读依据：名称中含有水系字词：江');
-    const filteredMapLink = screen.getByRole('link', { name: '去完整地图' });
+    const filteredMapLink = screen.getByRole('link', { name: '去村庄地图' });
     expect(filteredMapLink).toHaveAttribute('href', '/map?mode=search&primaryId=vlg-jiangkou');
   });
 });

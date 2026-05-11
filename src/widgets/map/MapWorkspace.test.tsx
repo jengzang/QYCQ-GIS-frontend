@@ -104,7 +104,7 @@ describe('MapWorkspace', () => {
 
     expect(screen.getByRole('heading', { name: '筛选与村庄列表' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '村庄地图' })).toBeInTheDocument();
-    expect(screen.getByLabelText('居民民族')).toHaveValue('汉族');
+    expect(screen.getByLabelText('民系')).toHaveValue('汉族');
     expect(screen.getByLabelText('经济情况')).toHaveValue('种植砂糖橘');
     expect(screen.getByRole('heading', { name: '筛选与村庄列表' }).parentElement?.parentElement).toContainElement(
       screen.getByRole('button', { name: '一键清空筛选' }),
@@ -154,7 +154,7 @@ describe('MapWorkspace', () => {
     expect(screen.getByText('汉族 / 种植砂糖橘')).toBeInTheDocument();
     expect(screen.getByText('村庄叙事')).toBeInTheDocument();
     expect(screen.getByText('阅读提示')).toBeInTheDocument();
-    expect(screen.getAllByText('居民民族').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('民系').length).toBeGreaterThan(0);
     expect(screen.getAllByText('汉族').length).toBeGreaterThan(0);
     expect(screen.getAllByText('经济情况').length).toBeGreaterThan(0);
     expect(screen.getAllByText('种植砂糖橘').length).toBeGreaterThan(0);

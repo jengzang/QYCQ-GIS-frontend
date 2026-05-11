@@ -482,7 +482,7 @@ export function ToponymyPage() {
               : '地图展示当前命名样本的空间分布，输入关键词后会同步更新。'
           }
         >
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.8fr)]">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.78fr)_minmax(9rem,0.38fr)]">
             <div className="space-y-3">
               <ToponymyMapCanvas
                 mapStyleKey={mapStyleKey}
@@ -503,7 +503,7 @@ export function ToponymyPage() {
                   ? `当前定位到“${selectedVillage.name}”，位于${selectedVillage.city || '城市未填'} · ${selectedVillage.town || '乡镇未填'}，命名语义判为“${selectedVillage.category}”。`
                   : '当前筛选没有可定位村庄，请调整关键词或语义类别。'}
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 space-y-3">
                 <div className="rounded-[1.15rem] bg-white/90 p-3">
                   <p className="text-xs text-[color:var(--color-text-tertiary)]">地图点位</p>
                   <p className="mt-2 text-xl font-semibold text-[color:var(--color-text-primary)]">{analysis.summary.matchCount}</p>

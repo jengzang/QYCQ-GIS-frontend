@@ -263,7 +263,7 @@ describe('MapPage layout', () => {
     expect(screen.getByText('按方言分组观察村庄空间分布，快速对比不同方言片区。')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: '方言分布' })).toHaveAttribute('data-state', 'active');
     expect(screen.getByRole('tab', { name: '村庄检索' })).toHaveAttribute('data-state', 'inactive');
-    expect(screen.getByLabelText('居民民族')).toBeInTheDocument();
+    expect(screen.getByLabelText('民系')).toBeInTheDocument();
     expect(screen.getByLabelText('方言分布')).toBeInTheDocument();
     expect(screen.queryByLabelText('方言分组')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('经济情况')).not.toBeInTheDocument();
@@ -438,7 +438,7 @@ describe('MapPage layout', () => {
     expect(screen.getByLabelText('归属市')).toHaveValue('肇庆市');
     expect(screen.getByLabelText('归属镇')).toHaveValue('高良镇');
     expect(screen.getByLabelText('关键词检索')).toHaveValue('平治村');
-    expect(screen.getByLabelText('居民民族')).toHaveValue('汉族');
+    expect(screen.getByLabelText('民系')).toHaveValue('汉族');
     expect(screen.getByLabelText('经济情况')).toHaveValue('种植砂糖橘');
     expect(useVillagesQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -486,7 +486,7 @@ describe('MapPage layout', () => {
     render(<App />);
     pushStateSpy.mockClear();
 
-    fireEvent.change(screen.getByLabelText('居民民族'), {
+    fireEvent.change(screen.getByLabelText('民系'), {
       target: { value: '汉族' },
     });
 
@@ -525,7 +525,7 @@ describe('MapPage layout', () => {
 
     render(<App />);
 
-    expect(screen.queryByLabelText('居民民族')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('民系')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('经济情况')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('关键词检索')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('全文搜索')).not.toBeInTheDocument();
